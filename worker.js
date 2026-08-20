@@ -95,8 +95,10 @@ async function handleProducts(request, env) {
 
   const url = new URL(request.url);
 
+
   // =========================
   // 商品一覧（公開）
+  // D1取得
   // =========================
   if (
     request.method === "GET" &&
@@ -105,68 +107,49 @@ async function handleProducts(request, env) {
 
     try {
 
-      const res = await fetch(
-        env.GAS_URL +
-        "?mode=allProducts"
-      );
+      const { results } =
+        await env.DB
+          .prepare(`
+            SELECT *
+            FROM products
+            WHERE status = '販売中'
+            ORDER BY sort_order ASC
+          `)
+          .all();
 
-      const text = await res.text();
 
-      console.log(
-        "PRODUCTS GAS STATUS =",
-        res.status
-      );
+      return json({
 
-      console.log(
-        "PRODUCTS GAS RAW =",
-        text
-      );
+        success: true,
 
-      if (!res.ok) {
+        products: results
 
-        return json({
-          success: false,
-          message: "GAS products API error",
-          status: res.status,
-          detail: text
-        }, 502);
+      });
 
-      }
-
-      let data;
-
-      try {
-
-        data = JSON.parse(text);
-
-      } catch (e) {
-
-        return json({
-          success: false,
-          message: "Invalid GAS products response",
-          detail: text
-        }, 502);
-
-      }
-
-      return json(data);
 
     } catch (error) {
 
       console.error(
-        "handleProducts GET ERROR:",
+        "handleProducts D1 GET ERROR:",
         error
       );
 
+
       return json({
+
         success: false,
-        message: "Products fetch failed",
+
+        message: "D1 products fetch failed",
+
         error: error.message
-      }, 502);
+
+      }, 500);
 
     }
 
   }
+
+
 
   // =========================
   // 商品追加
@@ -176,11 +159,10 @@ async function handleProducts(request, env) {
     url.pathname === "/api/products"
   ) {
 
-    // =========================
-    // 認証
-    // =========================
+
     const admin =
       await requireAdmin(request, env);
+
 
     if (!admin) {
 
@@ -194,8 +176,10 @@ async function handleProducts(request, env) {
 
     }
 
+
     const body =
       await request.json();
+
 
     const res =
       await fetch(env.GAS_URL, {
@@ -203,8 +187,11 @@ async function handleProducts(request, env) {
         method: "POST",
 
         headers: {
+
           "Content-Type": "application/json"
+
         },
+
 
         body: JSON.stringify({
 
@@ -216,9 +203,14 @@ async function handleProducts(request, env) {
 
       });
 
-    return json(await res.json());
+
+    return json(
+      await res.json()
+    );
 
   }
+
+
 
   // =========================
   // 商品表示順一括更新
@@ -228,49 +220,45 @@ async function handleProducts(request, env) {
     url.pathname === "/api/products/sort"
   ) {
 
-  // =========================
-  // 認証
-  // =========================
-  const admin =
-    await requireAdmin(request, env);
 
-  if (!admin) {
-
-    return json({
-
-      success: false,
-
-      message: "Unauthorized"
-
-    }, 401);
-
-  }
+    const admin =
+      await requireAdmin(request, env);
 
 
-  // =========================
-  // データ取得
-  // =========================
-  const body =
-    await request.json();
+    if (!admin) {
+
+      return json({
+
+        success:false,
+
+        message:"Unauthorized"
+
+      },401);
+
+    }
 
 
-  // =========================
-  // GASへ一括送信
-  // =========================
-  const res =
-    await fetch(
-      env.GAS_URL,
-      {
+    const body =
+      await request.json();
 
-        method: "POST",
 
-        headers: {
-          "Content-Type":
-            "application/json"
-        },
 
-        body:
-          JSON.stringify({
+    const res =
+      await fetch(
+        env.GAS_URL,
+        {
+
+          method:"POST",
+
+          headers:{
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+
+          body:JSON.stringify({
 
             mode:
               "updateProductSortOrder",
@@ -283,15 +271,17 @@ async function handleProducts(request, env) {
 
           })
 
-      }
+        }
+      );
+
+
+    return json(
+      await res.json()
     );
 
+  }
 
-  return json(
-    await res.json()
-  );
 
-}
 
   // =========================
   // 商品更新
@@ -301,39 +291,43 @@ async function handleProducts(request, env) {
     url.pathname === "/api/products/update"
   ) {
 
-    // =========================
-    // 認証
-    // =========================
+
     const admin =
       await requireAdmin(request, env);
+
 
     if (!admin) {
 
       return json({
 
-        success: false,
+        success:false,
 
-        message: "Unauthorized"
+        message:"Unauthorized"
 
-      }, 401);
+      },401);
 
     }
+
 
     const body =
       await request.json();
 
+
     const res =
       await fetch(env.GAS_URL, {
 
-        method: "POST",
+        method:"POST",
 
-        headers: {
-          "Content-Type": "application/json"
+        headers:{
+
+          "Content-Type":"application/json"
+
         },
 
-        body: JSON.stringify({
 
-          mode: "updateProduct",
+        body:JSON.stringify({
+
+          mode:"updateProduct",
 
           ...body
 
@@ -341,9 +335,14 @@ async function handleProducts(request, env) {
 
       });
 
-    return json(await res.json());
+
+    return json(
+      await res.json()
+    );
 
   }
+
+
 
   // =========================
   // 商品削除
@@ -353,39 +352,43 @@ async function handleProducts(request, env) {
     url.pathname === "/api/products/delete"
   ) {
 
-    // =========================
-    // 認証
-    // =========================
+
     const admin =
       await requireAdmin(request, env);
+
 
     if (!admin) {
 
       return json({
 
-        success: false,
+        success:false,
 
-        message: "Unauthorized"
+        message:"Unauthorized"
 
-      }, 401);
+      },401);
 
     }
+
 
     const body =
       await request.json();
 
+
     const res =
       await fetch(env.GAS_URL, {
 
-        method: "POST",
+        method:"POST",
 
-        headers: {
-          "Content-Type": "application/json"
+        headers:{
+
+          "Content-Type":"application/json"
+
         },
 
-        body: JSON.stringify({
 
-          mode: "deleteProduct",
+        body:JSON.stringify({
+
+          mode:"deleteProduct",
 
           ...body
 
@@ -393,15 +396,21 @@ async function handleProducts(request, env) {
 
       });
 
-    return json(await res.json());
+
+    return json(
+      await res.json()
+    );
 
   }
 
+
+
   return json({
 
-    error: "products route error"
+    error:"products route error"
 
-  }, 404);
+  },404);
+
 
 }
 
