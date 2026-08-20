@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+
+レシピ管理
+
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<style>
+
+/* =========================
+   レシピ管理
+========================= */
+
+.recipe-container{display:flex;gap:20px;align-items:flex-start;width:100%}
+.left-panel{width:320px;min-width:320px;flex:0 0 320px;position:sticky;top:20px}
+.left-panel>.card{height:calc(100vh - 40px);max-height:calc(100vh - 40px);overflow:hidden;box-sizing:border-box}
+.search-box{margin-bottom:15px;flex-shrink:0}
+.search-box input{width:100%;box-sizing:border-box;padding:10px 12px}
+.product-list{display:flex;flex-direction:column;gap:8px;height:calc(100% - 55px);overflow-y:auto;overflow-x:hidden;padding:2px;box-sizing:border-box}
+
+/* 商品カード */
+.product-card{background:#fff;border-radius:10px;padding:13px 14px;cursor:pointer;border:2px solid transparent;transition:.2s;box-sizing:border-box;height:auto;min-height:86px;max-height:none;overflow:visible;flex-shrink:0;width:100%;line-height:1.5}
+.product-card:hover{border-color:#4caf50}
+.product-card.active{border-color:#4caf50;background:#f1fff2}
+.product-card strong{display:block;font-size:16px;line-height:1.5;margin-bottom:4px;white-space:normal;word-break:break-word}
+
+/* 右側 */
+.right-panel{flex:1;min-width:0;position:sticky;top:20px}
+.right-panel>.card{box-sizing:border-box}
+
+/* レシピ */
+.recipe-header{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
+.recipe-header h2{margin:0;line-height:1.4}
+.recipe-summary{display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap}
+.summary-card{background:#fff;border-radius:10px;padding:15px;min-width:180px;box-sizing:border-box}
+.recipe-table{width:100%;border-collapse:collapse}
+.recipe-table th,.recipe-table td{border-bottom:1px solid #ddd;padding:10px;text-align:center}
+.recipe-table th{background:#f5f5f5}
+.recipe-actions{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+
+/* モーダル */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999}
+.modal-content{background:#fff;width:95%;max-width:700px;max-height:90vh;overflow:auto;margin:40px auto;border-radius:10px;padding:20px;box-sizing:border-box}
+.modal-body{display:flex;gap:20px}
+.material-list{flex:1;max-height:350px;overflow-y:auto;overflow-x:hidden;border:1px solid #ddd}
+.material-item{padding:10px;cursor:pointer;border-bottom:1px solid #eee;box-sizing:border-box;line-height:1.5}
+.material-item:hover{background:#f5f5f5}
+.material-form{width:260px;flex-shrink:0}
+.material-form input,.material-form select{width:100%;margin-bottom:12px;box-sizing:border-box;padding:8px}
+
+/* PC */
+@media(min-width:901px){
+  .recipe-container{align-items:flex-start}
+  .left-panel,.right-panel{position:sticky;top:20px}
+  .product-list{height:calc(100vh - 105px);max-height:calc(100vh - 105px)}
+}
+
+/* タブレット */
+@media(min-width:601px) and (max-width:900px){
+  .recipe-container{display:flex;gap:15px}
+  .left-panel{width:280px;min-width:280px;flex:0 0 280px;position:sticky;top:10px}
+  .left-panel>.card{height:calc(100vh - 20px);max-height:calc(100vh - 20px)}
+  .right-panel{position:sticky;top:10px}
+  .product-list{height:calc(100vh - 85px);max-height:calc(100vh - 85px)}
+  .product-card{min-height:82px;padding:12px}
+}
+
+/* スマホ */
+@media(max-width:600px){
+  .recipe-container{display:flex;flex-direction:column;gap:15px}
+  .left-panel{width:100%;min-width:0;flex:none;position:relative;top:auto}
+  .left-panel>.card{height:auto;max-height:none;overflow:visible}
+  .product-list{height:260px;max-height:260px;overflow-y:auto;overflow-x:hidden}
+  .product-card{width:100%;min-height:82px;height:auto;padding:12px 14px;flex-shrink:0}
+  .product-card strong{font-size:16px;line-height:1.5}
+  .right-panel{width:100%;position:relative;top:auto}
+  .recipe-header{align-items:flex-start;flex-direction:column}
+  .recipe-header button{width:100%}
+  .recipe-summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .summary-card{min-width:0;padding:12px}
+  .recipe-table{display:block;overflow-x:auto;white-space:nowrap}
+  .recipe-table th,.recipe-table td{padding:8px}
+  .modal-content{width:95%;max-height:90vh;margin:20px auto;padding:15px}
+  .modal-body{flex-direction:column;gap:15px}
+  .material-list{max-height:250px}
+  .material-form{width:100%}
+  .recipe-actions{width:100%}
+  .recipe-actions button{flex:1}
+}
+
+/* 小さいスマホ */
+@media(max-width:400px){
+  .product-card{padding:11px 12px;min-height:78px;font-size:14px}
+  .product-card strong{font-size:15px}
+  .recipe-summary{grid-template-columns:1fr}
+}
+  
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<a
+  href="admin.html"
+  class="back-btn"
+>
+
+← 管理画面へ戻る
+
+</a>
+
+<h1>
+
+レシピ管理
+
+</h1>
+
+<p>
+
+商品のレシピ・原価を管理します。
+
+</p>
+
+<div class="recipe-container">
+
+<!-- 左側 -->
+<div class="left-panel">
+
+<div class="card">
+
+<div class="search-box">
+
+<input
+
+type="text"
+
+id="searchProduct"
+
+placeholder="商品名で検索..."
+
+oninput="filterProducts()"
+
+>
+
+</div>
+
+<div
+
+id="productList"
+
+class="product-list"
+
+>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- 右側 -->
+<div class="right-panel">
+
+<div class="card">
+
+<div class="recipe-header">
+
+<h2
+
+id="recipeTitle"
+
+>
+
+商品を選択してください
+
+</h2>
+
+<button
+
+class="add-btn"
+
+onclick="openMaterialModal()"
+
+>
+
+＋ 材料追加
+
+</button>
+
+</div>
+
+<div
+
+class="recipe-summary"
+
+>
+
+<div class="summary-card">
+
+<div>
+
+販売価格
+
+</div>
+
+<strong
+
+id="recipePrice"
+
+>
+
+0 円
+
+</strong>
+
+</div>
+
+<div class="summary-card">
+
+<div>
+
+商品原価
+
+</div>
+
+<strong
+
+id="recipeCost"
+
+>
+
+0 円
+
+</strong>
+
+</div>
+
+<div class="summary-card">
+
+<div>
+
+原価率
+
+</div>
+
+<strong
+
+id="recipeCostRate"
+
+>
+
+0 %
+
+</strong>
+
+</div>
+
+</div>
+
+<table
+
+class="recipe-table"
+
+>
+
+<thead>
+
+<tr>
+
+<th>
+
+材料名
+
+</th>
+
+<th>
+
+使用量
+
+</th>
+
+<th>
+
+単位
+
+</th>
+
+<th>
+
+ロス率
+
+</th>
+
+<th>
+
+材料原価
+
+</th>
+
+<th>
+
+操作
+
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+
+id="recipeBody"
+
+>
+
+<tr>
+
+<td
+
+colspan="6"
+
+>
+
+商品を選択してください。
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div
+
+class="recipe-actions"
+
+>
+
+<button
+
+type="button"
+
+onclick="saveRecipe()"
+
+>
+
+保存
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- =========================
+     材料追加モーダル
+========================= -->
+
+<div
+
+id="materialModal"
+
+class="modal"
+
+>
+
+<div
+
+class="modal-content"
+
+>
+
+<h2>
+
+材料追加
+
+</h2>
+
+<div
+
+class="modal-body"
+
+>
+
+<!-- 左 -->
+
+<div>
+
+<input
+
+type="text"
+
+id="materialSearch"
+
+placeholder="材料名で検索..."
+
+oninput="filterMaterials()"
+
+>
+
+<div
+
+id="modalMaterialList"
+
+class="material-list"
+
+>
+
+</div>
+
+</div>
+
+<!-- 右 -->
+
+<div
+
+class="material-form"
+
+>
+
+<input
+
+type="hidden"
+
+id="selectedMaterialId"
+
+>
+
+<label>
+
+材料名
+
+</label>
+
+<input
+
+id="selectedMaterialName"
+
+readonly
+
+>
+
+<label>
+
+使用量
+
+</label>
+
+<input
+
+type="number"
+
+id="recipeQty"
+
+step="0.001"
+
+>
+
+<label>
+
+使用単位
+
+</label>
+
+<input
+
+id="recipeUnit"
+
+readonly
+
+>
+
+<label>
+
+ロス率(%)
+
+</label>
+
+<input
+
+type="number"
+
+id="recipeLoss"
+
+step="0.1"
+
+value="0"
+
+>
+
+<label>
+
+備考
+
+</label>
+
+<input
+
+id="recipeRemarks"
+
+>
+
+<div
+
+class="recipe-actions"
+
+>
+
+<button
+
+type="button"
+
+onclick="closeMaterialModal()"
+
+>
+
+キャンセル
+
+</button>
+
+<button
+
+type="button"
+
+onclick="addRecipeMaterial()"
+
+>
+
+追加
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script
+  src="js/config.js"
+></script>
+
+<script
+  src="js/admin-auth.js"
+></script>
+
+<script
+  src="js/recipes.js"
+></script>
+
+</body>
+
+</html>

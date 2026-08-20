@@ -1,0 +1,23 @@
+{
+  "name":"むすび キッチンカー管理",
+  "short_name":"キッチンカー",
+  "start_url":"kitchen-index.html",
+  "display":"standalone",
+  "background_color":"#ffffff",
+  "theme_color":"#4CAF50",
+
+  "icons":[
+    {
+      "src":"icons/kitchen-192.jpg",
+      "sizes":"192x192",
+      "type":"image/jpeg",
+      "purpose":"any"
+    },
+    {
+      "src":"icons/kitchen-512.jpg",
+      "sizes":"512x512",
+      "type":"image/jpeg",
+      "purpose":"any"
+    }
+  ]
+}

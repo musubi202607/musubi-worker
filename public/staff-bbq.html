@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>店舗BBQ受付</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container header-inner">
+
+    <div>
+
+      <h1>店舗BBQ受付</h1>
+
+      <p>
+        店頭でのBBQ受付専用画面です。
+      </p>
+
+    </div>
+
+  </div>
+
+</header>
+
+<section class="products container">
+
+  <div class="section-title">
+
+    <h2>BBQセット</h2>
+
+  </div>
+
+  <div
+    class="product-grid"
+    id="bbqProducts"
+  ></div>
+
+</section>
+
+<div class="container">
+
+  <a
+    href="staff.html"
+    class="back-btn"
+  >
+
+    ← 店舗メニューへ戻る
+
+  </a>
+
+</div>
+
+<section
+  class="container"
+  id="calendarSection"
+>
+
+  <div class="section-title">
+
+    <h2>予約日選択</h2>
+
+  </div>
+
+  <div id="calendar"></div>
+
+  <div id="selectedDateInfo"></div>
+
+  <button
+    id="goOrder"
+    class="order-btn"
+    onclick="goOrder()"
+    disabled
+  >
+
+    予約情報入力へ進む
+
+  </button>
+
+</section>
+
+<script src="js/config.js"></script>
+<script src="js/bbq.js"></script>
+
+</body>
+
+</html>

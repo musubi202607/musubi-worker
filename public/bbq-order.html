@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    BBQ予約確認
+  </title>
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container header-inner">
+
+    <div>
+
+      <h1>
+        BBQ予約確認
+      </h1>
+      
+      <p>
+        内容をご確認のうえ送信してください
+      </p>
+    
+    </div>
+
+  </div>
+
+</header>
+
+<div class="container">
+
+  <div class="back-group">
+
+    <a
+      href="index.html"
+      class="back-btn"
+    >
+      ← トップページ
+    </a>
+
+    <a
+      href="bbq.html"
+      class="back-btn"
+    >
+      ← BBQ予約へ戻る
+    </a>
+
+  </div>
+
+  <div id="orderItems">
+
+  </div>
+
+  <input
+    type="text"
+    id="customerName"
+    placeholder="お名前"
+  >
+
+  <input
+    type="tel"
+    id="customerTel"
+    placeholder="電話番号"
+  >
+
+  <input
+    type="number"
+    id="people"
+    placeholder="人数"
+    min="1"
+  >
+
+  <textarea
+    id="memo"
+    placeholder="備考"
+  ></textarea>
+
+  <button
+    class="order-btn"
+    onclick="sendBbqOrder()"
+  >
+
+    BBQ予約を送信
+
+  </button>
+
+</div>
+
+<script src="js/config.js"></script>
+
+<script src="js/bbq-order.js"></script>
+
+</body>
+</html>

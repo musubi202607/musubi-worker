@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>表示順管理</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<style>
+
+/* =========================
+   表示順管理
+========================= */
+
+.sort-page{
+  max-width:700px;
+  margin:0 auto;
+}
+
+/* 戻るボタン */
+
+.sort-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:20px 0;
+}
+
+.back-btn{
+  display:inline-block;
+  padding:10px 14px;
+  background:#666;
+  color:#fff;
+  text-decoration:none;
+  border-radius:8px;
+}
+
+/* =========================
+   タブ
+========================= */
+
+.sort-tabs{
+  display:flex;
+  width:100%;
+  margin-bottom:20px;
+}
+
+.sort-tab{
+  flex:1;
+  padding:15px 8px;
+  border:1px solid #ddd;
+  background:#f5f5f5;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.sort-tab:first-child{
+  border-radius:8px 0 0 8px;
+}
+
+.sort-tab:last-child{
+  border-radius:0 8px 8px 0;
+}
+
+.sort-tab.active{
+  background:#4CAF50;
+  color:#fff;
+  border-color:#4CAF50;
+}
+
+/* =========================
+   セクション
+========================= */
+
+.sort-section{
+  display:none;
+}
+
+.sort-section.active{
+  display:block;
+}
+
+.sort-title{
+  margin:10px 0 5px;
+  font-size:22px;
+}
+
+.sort-description{
+  color:#666;
+  margin-bottom:15px;
+  font-size:14px;
+}
+
+/* =========================
+   商品一覧
+========================= */
+
+.sort-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+/* =========================
+   商品1件
+========================= */
+
+.sort-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  box-sizing:border-box;
+
+  background:#fff;
+
+  border:1px solid #ddd;
+  border-radius:10px;
+
+  padding:10px 12px;
+
+  min-height:58px;
+
+  box-shadow:
+    0 1px 3px rgba(0,0,0,.08);
+}
+
+/* 順位 */
+
+.sort-number{
+  width:36px;
+  min-width:36px;
+
+  text-align:center;
+
+  font-size:18px;
+  font-weight:bold;
+
+  color:#555;
+}
+
+/* 商品情報 */
+
+.sort-info{
+  flex:1;
+  min-width:0;
+}
+
+.sort-product{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+.sort-id{
+  font-size:14px;
+  color:#777;
+  flex-shrink:0;
+}
+
+.sort-name{
+  font-size:17px;
+  font-weight:bold;
+
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+/* =========================
+   ▲▼
+========================= */
+
+.sort-buttons{
+  display:flex;
+  gap:6px;
+  flex-shrink:0;
+}
+
+.sort-buttons button{
+
+  width:44px;
+  height:44px;
+
+  border:none;
+  border-radius:8px;
+
+  background:#eee;
+
+  font-size:22px;
+  font-weight:bold;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+.sort-buttons button:active{
+  transform:scale(.95);
+}
+
+.sort-buttons button:disabled{
+  opacity:.3;
+  cursor:default;
+}
+
+/* =========================
+   保存ボタン
+========================= */
+
+.save-sort-btn{
+
+  width:100%;
+
+  margin-top:18px;
+
+  padding:15px;
+
+  border:none;
+  border-radius:10px;
+
+  background:#2196F3;
+
+  color:#fff;
+
+  font-size:18px;
+  font-weight:bold;
+
+  cursor:pointer;
+
+  touch-action:manipulation;
+}
+
+.save-sort-btn:disabled{
+  opacity:.6;
+}
+
+/* =========================
+   情報表示
+========================= */
+
+.sort-message{
+
+  background:#fff;
+
+  border-radius:10px;
+
+  padding:20px;
+
+  text-align:center;
+
+  color:#666;
+
+}
+
+/* =========================
+   スマホ
+========================= */
+
+@media(max-width:600px){
+
+  .container{
+    padding-left:10px;
+    padding-right:10px;
+  }
+
+  .sort-page{
+    width:100%;
+  }
+
+  .sort-header{
+    margin:12px 0;
+  }
+
+  .sort-header h1{
+    font-size:22px;
+  }
+
+  .back-btn{
+    padding:9px 11px;
+    font-size:13px;
+  }
+
+  .sort-tab{
+    padding:14px 5px;
+    font-size:15px;
+  }
+
+  .sort-item{
+    padding:8px 8px;
+    gap:7px;
+    min-height:56px;
+  }
+
+  .sort-number{
+    width:30px;
+    min-width:30px;
+    font-size:17px;
+  }
+
+  .sort-name{
+    font-size:16px;
+  }
+
+  .sort-id{
+    font-size:13px;
+  }
+
+  .sort-buttons{
+    gap:4px;
+  }
+
+  .sort-buttons button{
+    width:42px;
+    height:42px;
+    font-size:20px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container header-inner">
+
+    <h1>
+      表示順管理
+    </h1>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+<div class="sort-page">
+
+
+  <!-- =========================
+       戻る
+  ========================= -->
+
+  <div class="sort-header">
+
+    <a
+      id="backLink"
+      class="back-btn"
+      href="admin.html"
+    >
+      ← 管理画面へ戻る
+    </a>
+
+  </div>
+
+
+  <!-- =========================
+       タブ
+  ========================= -->
+
+  <div class="sort-tabs">
+
+    <button
+      id="storeTab"
+      class="sort-tab active"
+      onclick="switchTab('store')"
+    >
+      店舗表示順
+    </button>
+
+    <button
+      id="kitchenTab"
+      class="sort-tab"
+      onclick="switchTab('kitchen')"
+    >
+      キッチンカー
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       店舗表示順
+  ========================= -->
+
+  <section
+    id="storeSection"
+    class="sort-section active"
+  >
+
+    <h2 class="sort-title">
+      店舗表示順
+    </h2>
+
+    <p class="sort-description">
+      店舗○の商品を表示します。▲▼で順番を変更できます。
+    </p>
+
+    <div
+      id="storeSortList"
+      class="sort-list"
+    >
+    </div>
+
+    <button
+      id="saveStoreSortButton"
+      class="save-sort-btn"
+      onclick="saveStoreSortOrder()"
+    >
+      店舗表示順を保存
+    </button>
+
+  </section>
+
+
+  <!-- =========================
+       キッチンカー表示順
+  ========================= -->
+
+  <section
+    id="kitchenSection"
+    class="sort-section"
+  >
+
+    <h2 class="sort-title">
+      キッチンカー表示順
+    </h2>
+
+    <p class="sort-description">
+      カー○の商品を表示します。▲▼で順番を変更できます。
+    </p>
+
+    <div
+      id="kitchenSortList"
+      class="sort-list"
+    >
+    </div>
+
+    <button
+      id="saveKitchenSortButton"
+      class="save-sort-btn"
+      onclick="saveKitchenSortOrder()"
+    >
+      キッチンカー表示順を保存
+    </button>
+
+  </section>
+
+
+</div>
+
+</main>
+
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-products-sort.js"></script>
+
+</body>
+
+</html>

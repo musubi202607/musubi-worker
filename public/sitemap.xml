@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- musubi sitemap update 20260720 -->
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+<url>
+<loc>https://musubi202607.github.io/musubi/</loc>
+<lastmod>2026-07-20</lastmod>
+</url>
+
+<url>
+<loc>https://musubi202607.github.io/musubi/bbq.html</loc>
+<lastmod>2026-07-20</lastmod>
+</url>
+
+<url>
+<loc>https://musubi202607.github.io/musubi/order.html</loc>
+<lastmod>2026-07-20</lastmod>
+</url>
+
+<url>
+<loc>https://musubi202607.github.io/musubi/cart.html</loc>
+<lastmod>2026-07-20</lastmod>
+</url>
+
+</urlset>

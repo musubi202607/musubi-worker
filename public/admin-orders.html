@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>注文履歴</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+.order-card{
+background:#fff;
+padding:15px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,.1)
+}
+
+.search-area{
+background:#fff;
+padding:15px;
+margin:20px 0;
+border-radius:10px;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="container header-inner">
+
+<h1>注文履歴</h1>
+
+</div>
+
+</header>
+
+
+
+<div class="container">
+
+
+<a href="admin.html" class="back-btn">
+← 管理画面へ戻る
+</a>
+
+
+
+
+<div class="search-area">
+
+
+<h3>期間検索</h3>
+
+
+<p>
+
+開始日
+
+<input
+type="date"
+id="startDate"
+>
+
+</p>
+
+
+<p>
+
+終了日
+
+<input
+type="date"
+id="endDate"
+>
+
+</p>
+
+
+<button onclick="loadOrders(currentType)">
+検索
+</button>
+
+
+</div>
+
+
+
+
+
+<div style="margin:20px 0;">
+
+
+<button onclick="loadOrders('onigiri')">
+おにぎり
+</button>
+
+
+<button onclick="loadOrders('bbq')">
+BBQ予約
+</button>
+
+
+<button onclick="loadOrders('option')">
+追加注文
+</button>
+
+
+</div>
+
+
+
+
+<div id="orderBody"></div>
+
+
+
+
+</div>
+
+
+
+
+
+<script src="js/config.js"></script>
+
+<script src="js/admin-auth.js"></script>
+
+
+
+<script>
+
+
+let currentType="onigiri";
+
+
+
+// =========================
+// 注文取得
+// =========================
+
+async function loadOrders(
+type="onigiri"
+){
+
+
+currentType=type;
+
+
+const body =
+document.getElementById(
+"orderBody"
+);
+
+
+body.innerHTML="更新中...";
+
+
+
+try{
+
+
+const start =
+document.getElementById(
+"startDate"
+).value;
+
+
+const end =
+document.getElementById(
+"endDate"
+).value;
+
+
+
+
+let url =
+API_URL +
+"/api/orders?type=" +
+encodeURIComponent(type);
+
+
+
+if(start){
+
+url +=
+"&start=" +
+encodeURIComponent(start);
+
+}
+
+
+if(end){
+
+url +=
+"&end=" +
+encodeURIComponent(end);
+
+}
+
+
+
+
+
+const res =
+await fetch(
+
+url,
+
+{
+
+headers:{
+
+Authorization:
+"Bearer " +
+localStorage.getItem(
+"adminToken"
+)
+
+}
+
+}
+
+);
+
+
+
+
+
+const result =
+await res.json();
+
+
+
+
+
+if(!res.ok){
+
+
+body.innerHTML=
+
+`
+<div class="order-card">
+
+${result.message || "取得失敗"}
+
+</div>
+`;
+
+return;
+
+}
+
+
+
+
+
+const orders =
+Array.isArray(result.orders)
+?
+result.orders
+:
+[];
+
+
+
+
+
+if(!orders.length){
+
+
+body.innerHTML=
+
+`
+<div class="order-card">
+
+データがありません
+
+</div>
+`;
+
+return;
+
+}
+
+
+
+
+
+let html="";
+
+
+
+
+
+orders.forEach(order=>{
+
+
+
+
+
+const paidText =
+order.paid==="済"
+?
+"会計済"
+:
+order.paid==="未"
+?
+"未会計"
+:
+order.paid || "";
+const statusText =
+(
+order.status==="取消" ||
+order.status==="キャンセル"
+)
+?
+`<p>状態：${order.status}</p>`
+:
+"";
+
+// =========================
+// おにぎり
+// =========================
+
+if(type==="onigiri"){
+
+
+html +=
+
+
+`
+
+<div class="order-card">
+
+
+<h3>
+注文番号 ${order.orderNo || ""}
+</h3>
+
+
+<p>
+受付：
+${order.orderDate || ""}
+</p>
+
+
+<p>
+受取：
+${order.pickupTime || ""}
+</p>
+
+
+<p>
+氏名：
+${order.customerName || ""}
+</p>
+
+
+<p>
+電話：
+${order.customerTel || ""}
+</p>
+
+
+<p>
+商品：
+${order.itemName || ""}
+</p>
+
+
+<p>
+数量：
+${order.qty || 0}
+</p>
+
+
+<p>
+金額：
+¥${Number(
+order.amount || 0
+).toLocaleString()}
+</p>
+
+
+<p>
+状態：
+${order.status || ""}
+</p>
+
+
+<p>
+会計：
+${paidText}
+</p>
+
+
+</div>
+
+`;
+
+}
+
+
+
+
+// =========================
+// BBQ
+// =========================
+
+if(type==="bbq"){
+
+
+html +=
+
+
+`
+
+<div class="order-card">
+
+
+<h3>
+予約番号 ${order.reservationNo || ""}
+</h3>
+
+
+<p>
+利用日：
+${order.useDate || ""}
+</p>
+
+
+<p>
+受付：
+${order.orderDate || ""}
+</p>
+
+
+<p>
+氏名：
+${order.customerName || ""}
+</p>
+
+
+<p>
+電話：
+${order.customerTel || ""}
+</p>
+
+
+<p>
+人数：
+${order.people || 0}
+</p>
+
+
+<p>
+プラン：
+${order.plan || ""}
+</p>
+
+
+<p>
+金額：
+¥${Number(
+order.price || 0
+).toLocaleString()}
+</p>
+
+
+<p>
+状態：
+${order.status || ""}
+</p>
+
+
+<p>
+会計：
+${paidText}
+</p>
+
+
+</div>
+
+`;
+
+}
+
+
+
+
+
+// =========================
+// BBQ OPTION
+// =========================
+
+if(type==="option"){
+
+
+html +=
+
+
+`
+
+<div class="order-card">
+
+
+<h3>
+予約番号 ${order.reservationNo || ""}
+</h3>
+
+
+<p>
+受付：
+${order.orderDate || ""}
+</p>
+
+
+<p>
+利用日：
+${order.useDate || ""}
+</p>
+
+
+<p>
+氏名：
+${order.customerName || ""}
+</p>
+
+
+<p>
+商品：
+${order.itemName || ""}
+</p>
+
+
+<p>
+数量：
+${order.qty || 0}
+</p>
+
+
+<p>
+金額：
+¥${Number(
+order.amount || 0
+).toLocaleString()}
+</p>
+
+
+<p>
+状態：
+${order.status || ""}
+</p>
+
+
+<p>
+会計：
+${paidText}
+</p>
+
+
+</div>
+
+`;
+
+}
+
+
+
+});
+
+
+
+
+
+body.innerHTML=html;
+
+
+
+
+
+}catch(e){
+
+
+console.error(e);
+
+
+body.innerHTML=
+
+`
+<div class="order-card">
+
+通信エラー
+
+</div>
+`;
+
+}
+
+
+
+}
+
+
+
+
+loadOrders();
+
+
+
+</script>
+
+
+</body>
+
+</html>

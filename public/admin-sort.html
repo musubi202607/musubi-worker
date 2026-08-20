@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>表示順管理</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+.sort-header{
+  margin-bottom:20px;
+}
+
+.sort-header h2{
+  margin-bottom:5px;
+}
+
+.sort-mode{
+  color:#666;
+  font-size:14px;
+}
+
+.sort-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.sort-card{
+  background:#fff;
+  border-radius:10px;
+  padding:15px;
+  box-shadow:0 2px 6px rgba(0,0,0,.1);
+}
+
+.sort-number{
+  font-size:14px;
+  color:#666;
+  margin-bottom:5px;
+}
+
+.sort-name{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.sort-buttons{
+  display:flex;
+  gap:10px;
+}
+
+.sort-buttons button{
+  flex:1;
+  min-height:48px;
+  border:none;
+  border-radius:8px;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.up-btn{
+  background:#2196F3;
+  color:#fff;
+}
+
+.down-btn{
+  background:#4CAF50;
+  color:#fff;
+}
+
+.sort-buttons button:disabled{
+  background:#ddd;
+  color:#999;
+  cursor:default;
+}
+
+.save-area{
+  margin-top:25px;
+  position:sticky;
+  bottom:10px;
+  z-index:10;
+}
+
+.save-sort-btn{
+  width:100%;
+  min-height:55px;
+  border:none;
+  border-radius:10px;
+  background:#FF9800;
+  color:#fff;
+  font-size:20px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+
+.loading{
+  text-align:center;
+  padding:30px;
+  color:#666;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="container header-inner">
+
+<div>
+
+<h1>表示順管理</h1>
+
+<p id="modeText">
+店舗表示順
+</p>
+
+</div>
+
+</div>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="admin-top-buttons">
+
+<a
+id="backLink"
+class="back-btn"
+href="admin.html"
+>
+← 管理画面へ戻る
+</a>
+
+</div>
+
+
+<div class="sort-header">
+
+<h2 id="sortTitle">
+店舗表示順
+</h2>
+
+<div
+id="sortMode"
+class="sort-mode"
+>
+表示順を変更できます
+</div>
+
+</div>
+
+
+<div
+id="sortList"
+class="sort-list"
+>
+
+<div class="loading">
+読み込み中...
+</div>
+
+</div>
+
+
+<div class="save-area">
+
+<button
+id="saveButton"
+class="save-sort-btn"
+onclick="saveSort()"
+>
+💾 表示順を保存
+</button>
+
+</div>
+
+
+</main>
+
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-sort.js"></script>
+
+
+</body>
+
+</html>

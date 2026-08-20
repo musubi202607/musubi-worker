@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+  管理者ログイン
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+  <div class="container header-inner">
+
+    <div>
+
+      <h1>
+        店舗管理ログイン
+      </h1>
+
+      <p>
+        管理者専用
+      </p>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+
+<div class="container">
+
+
+<div class="form-area">
+
+
+<h2>
+ログイン
+</h2>
+
+
+<label>
+ID
+</label>
+
+<input
+  type="text"
+  id="adminId"
+  placeholder="管理者ID"
+>
+
+
+
+<label>
+パスワード
+</label>
+
+<input
+  type="password"
+  id="adminPassword"
+  placeholder="パスワード"
+>
+
+
+
+<button
+  class="order-btn"
+  onclick="login()"
+>
+ログイン
+</button>
+
+
+<p
+  id="message"
+  style="
+    margin-top:20px;
+    text-align:center;
+    color:red;
+  "
+></p>
+
+
+</div>
+
+
+</div>
+
+
+
+
+<script src="js/config.js"></script>
+
+
+<script>
+
+
+async function login(){
+
+
+  const id =
+    document
+      .getElementById("adminId")
+      .value;
+
+
+  const password =
+    document
+      .getElementById("adminPassword")
+      .value;
+
+
+
+  if(!id || !password){
+
+    document
+      .getElementById("message")
+      .textContent =
+        "IDとパスワードを入力してください";
+
+    return;
+
+  }
+
+
+
+  try{
+
+
+    const response =
+      await fetch(
+        API_URL + "/api/admin/login",
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+
+          body:
+            JSON.stringify({
+
+              id:id,
+
+              password:password
+
+            })
+
+        }
+      );
+
+
+
+    const result =
+      await response.json();
+
+
+
+if(result.success){
+
+  localStorage.setItem(
+    "adminToken",
+    result.token
+  );
+
+  localStorage.setItem(
+    "adminUser",
+    JSON.stringify(result.user)
+  );
+
+
+  // =========================
+  // 戻り先確認
+  // =========================
+
+  const redirect =
+    localStorage.getItem(
+      "loginRedirect"
+    );
+
+
+  localStorage.removeItem(
+    "loginRedirect"
+  );
+
+
+  console.log(
+    "redirect:",
+    redirect
+  );
+
+
+  if(redirect){
+
+  location.href =
+    location.origin +
+    redirect;
+
+
+}else if(result.user.role === "owner"){
+
+    location.href =
+      "admin.html";
+
+
+  }else{
+
+    location.href =
+      "staff.html";
+
+  }
+
+
+}
+
+ else{
+
+
+      document
+        .getElementById("message")
+        .textContent =
+          "IDまたはパスワードが違います";
+
+
+    }
+
+
+
+  }catch(e){
+
+
+    console.error(e);
+
+
+    document
+      .getElementById("message")
+      .textContent =
+        "通信エラー";
+
+
+  }
+
+
+}
+
+
+</script>
+
+
+</body>
+
+</html>

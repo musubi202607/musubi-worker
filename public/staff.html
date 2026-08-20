@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<title>
+
+店舗メニュー
+
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<link
+  rel="manifest"
+  href="staff-manifest.json"
+>
+
+<meta
+  name="apple-mobile-web-app-capable"
+  content="yes"
+>
+
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="default"
+>
+
+<meta
+  name="apple-mobile-web-app-title"
+  content="店舗"
+>
+
+<link
+  rel="apple-touch-icon"
+  href="icon.png"
+>
+
+<script src="js/config.js"></script>
+<script src="js/staff-auth.js"></script>
+
+<script>
+
+localStorage.removeItem(
+  "bbqReservation"
+);
+
+</script>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="container header-inner">
+
+<h1>
+
+店舗メニュー
+
+</h1>
+
+</div>
+
+</header>
+
+<main class="container">
+
+<div class="staff-menu">
+
+<a
+  href="staff-order.html"
+  class="staff-menu-btn"
+>
+
+<span class="staff-icon">
+
+🍙
+
+</span>
+
+<span>
+
+店舗注文受付
+
+</span>
+
+</a>
+
+<a
+  href="staff-bbq.html"
+  class="staff-menu-btn"
+>
+
+<span class="staff-icon">
+
+🔥
+
+</span>
+
+<span>
+
+BBQ受付
+
+</span>
+
+</a>
+
+<a
+  href="bbq-option.html"
+  class="staff-menu-btn"
+  onclick="localStorage.setItem('bbqOptionBack','staff')"
+>
+
+<span class="staff-icon">
+
+➕
+
+</span>
+
+<span>
+
+BBQ追加注文
+
+</span>
+
+</a>
+
+<a
+  href="payment-waiting.html"
+  class="staff-menu-btn"
+>
+
+<span class="staff-icon">
+
+💴
+
+</span>
+
+<span>
+
+会計待ち
+
+</span>
+
+</a>
+
+<a
+  href="sales-cancel.html?from=staff"
+  class="staff-menu-btn"
+>
+
+<span class="staff-icon">
+
+↩️
+
+</span>
+
+<span>
+
+売上取消
+
+</span>
+
+</a>
+
+<a
+  href="staff-reservations.html"
+  class="staff-menu-btn"
+>
+
+<span class="staff-icon">
+
+📋
+
+</span>
+
+<span>
+
+本日の予約
+
+</span>
+
+</a>
+
+</div>
+
+</main>
+
+<script>
+
+if(
+  "serviceWorker" in navigator
+){
+
+  navigator
+    .serviceWorker
+    .register(
+      "staff-service-worker.js"
+    );
+
+}
+
+</script>
+
+</body>
+
+</html>

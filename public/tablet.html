@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+>
+
+<title>
+BBQ追加注文
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<meta
+  name="apple-mobile-web-app-capable"
+  content="yes"
+>
+
+<meta
+  name="apple-mobile-web-app-status-bar-style"
+  content="black"
+>
+
+<meta
+  name="apple-mobile-web-app-title"
+  content="BBQ POS"
+>
+
+<link
+  rel="apple-touch-icon"
+  href="icon.png">
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container header-inner">
+
+    <div>
+
+      <h1>
+
+        BBQ追加注文
+
+      </h1>
+
+      <p>
+
+        追加注文専用
+
+      </p>
+
+    </div>
+
+  </div>
+
+</header>
+
+<div class="tablet-layout container">
+
+  <!-- =========================
+       受付一覧
+  ========================= -->
+
+  <section class="panel">
+
+    <h2>
+
+      受付一覧
+
+    </h2>
+
+    <div id="reservationList"></div>
+
+  </section>
+
+  <!-- =========================
+       現在受付中
+  ========================= -->
+
+  <section class="panel">
+
+    <h2>
+
+      ご利用中
+
+    </h2>
+
+    <div
+      id="currentReservation"
+      class="current-reservation"
+    >
+
+      <div class="empty-state">
+
+        <h3>
+
+          お客様を選択してください
+
+        </h3>
+
+        <p>
+
+          受付一覧から選択すると
+          追加注文できます。
+
+        </p>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- =========================
+       商品
+  ========================= -->
+
+  <section
+    id="productArea"
+    class="panel"
+  >
+
+    <h2>
+
+      フード
+
+    </h2>
+
+    <div
+      id="optionGrid"
+      class="product-grid"
+    ></div>
+
+    <h2 style="margin-top:30px;">
+
+      ドリンク
+
+    </h2>
+
+    <div
+      id="drinkGrid"
+      class="product-grid"
+    ></div>
+
+  </section>
+
+</div>
+
+<!-- =========================
+     カート
+========================= -->
+
+<div class="cart-footer">
+
+  <div id="cartArea"></div>
+
+  <div class="cart-buttons">
+
+    <button
+
+      class="btn btn-clear"
+
+      onclick="clearCart()"
+
+    >
+
+      やり直す
+
+    </button>
+
+    <button
+
+      class="btn btn-order"
+
+      onclick="sendBbqOptionOrder()"
+
+    >
+
+      追加注文する
+
+    </button>
+
+  </div>
+
+</div>
+
+<script src="js/config.js"></script>
+
+<script src="js/bbq-tablet.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>ダッシュボード</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<style>
+
+/* =========================
+   レイアウト
+========================= */
+
+.dashboard-top{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  flex-wrap:wrap;
+
+  gap:10px;
+
+  margin:20px 0;
+
+}
+
+
+.dashboard-date{
+
+  font-size:18px;
+
+  font-weight:bold;
+
+}
+
+
+.dashboard-update{
+
+  font-size:13px;
+
+  color:#666;
+
+}
+
+
+/* =========================
+   KPIカード
+========================= */
+
+.dashboard-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(180px,1fr));
+
+  gap:18px;
+
+  margin-bottom:20px;
+
+}
+
+
+.card{
+
+  background:#fff;
+
+  border-radius:12px;
+
+  padding:20px;
+
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.1);
+
+}
+
+
+.card h3{
+
+  margin:0 0 12px;
+
+  font-size:17px;
+
+}
+
+
+.value{
+
+  font-size:30px;
+
+  font-weight:bold;
+
+  color:#007bff;
+
+}
+
+
+/* =========================
+   セクション
+========================= */
+
+.dashboard-section{
+
+  margin-top:25px;
+
+  background:#fff;
+
+  border-radius:12px;
+
+  padding:20px;
+
+  box-shadow:
+    0 2px 6px rgba(0,0,0,.1);
+
+}
+
+
+.dashboard-section h2{
+
+  margin-top:0;
+
+}
+
+
+/* =========================
+   テーブル
+========================= */
+
+.dashboard-table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+}
+
+
+.dashboard-table th,
+.dashboard-table td{
+
+  border:1px solid #ddd;
+
+  padding:10px;
+
+  text-align:center;
+
+}
+
+
+.dashboard-table th{
+
+  background:#f5f5f5;
+
+}
+
+
+/* =========================
+   ステータス
+========================= */
+
+.status-danger{
+
+  color:#d32f2f;
+
+  font-weight:bold;
+
+}
+
+
+.status-warning{
+
+  color:#ff9800;
+
+  font-weight:bold;
+
+}
+
+
+.status-ok{
+
+  color:#4CAF50;
+
+  font-weight:bold;
+
+}
+
+
+/* =========================
+   スマホ
+========================= */
+
+@media(max-width:700px){
+
+  .dashboard-top{
+
+    flex-direction:column;
+
+    align-items:flex-start;
+
+  }
+
+
+  .value{
+
+    font-size:24px;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="container header-inner">
+
+<h1>
+ダッシュボード
+</h1>
+
+</div>
+
+</header>
+
+
+<main class="container">
+
+
+<div class="dashboard-top">
+
+
+<a
+  href="admin.html"
+  class="back-btn"
+>
+← 管理画面へ戻る
+</a>
+
+
+<div>
+
+
+<div
+  class="dashboard-date"
+  id="dashboardDate"
+>
+
+----/--/--
+
+</div>
+
+
+<div class="dashboard-update">
+
+最終更新：
+
+<span id="lastUpdate">
+
+--
+
+</span>
+
+</div>
+
+
+</div>
+
+
+<button
+ class="btn"
+ onclick="loadDashboard()"
+>
+
+更新
+
+</button>
+
+
+</div>
+
+
+
+<!-- =========================
+     今日の状況
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+📅 今日の状況
+
+</h2>
+
+
+<div class="dashboard-grid">
+
+
+<div class="card">
+
+
+<h3>
+
+本日の予約
+
+</h3>
+
+
+<div
+ class="value"
+ id="reservationCount"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+来店済
+
+</h3>
+
+
+<div
+ class="value status-ok"
+ id="checkedInCount"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+来店率
+
+</h3>
+
+
+<div
+ class="value"
+ id="visitRate"
+>
+
+0%
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+BBQ未会計
+
+</h3>
+
+
+<div
+ class="value status-danger"
+ id="bbqUnpaidCount"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+おにぎり未会計
+
+</h3>
+
+
+<div
+ class="value status-warning"
+ id="onigiriUnpaidCount"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- =========================
+     売上サマリー
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+💴 売上サマリー
+
+</h2>
+
+
+<div class="dashboard-grid">
+
+
+<div class="card">
+
+
+<h3>
+
+今月売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="totalSales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+おにぎり売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="onigiriSales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+BBQ売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="bbqSales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+オプション売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="optionSales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+<!-- =========================
+     売上サマリー追加項目
+========================= -->
+
+
+<div class="card">
+
+<h3>
+
+キッチンカー売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="kitchenSales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+本日売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="todaySales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+前日売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="yesterdaySales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+今月売上
+
+</h3>
+
+
+<div
+ class="value"
+ id="monthSales"
+>
+
+¥0
+
+</div>
+
+
+</div>
+
+
+
+<div class="card">
+
+
+<h3>
+
+前日比
+
+</h3>
+
+
+<div
+ class="value"
+ id="salesDiff"
+>
+
+0%
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- =========================
+     時間帯売上
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+📊 時間帯売上
+
+</h2>
+
+
+<div style="height:300px">
+
+
+<canvas
+ id="hourlyChart"
+>
+
+</canvas>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- =========================
+     人気商品 TOP5
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+🏆 人気商品 TOP5
+
+</h2>
+
+
+<table class="dashboard-table">
+
+
+<thead>
+
+
+<tr>
+
+<th>
+順位
+</th>
+
+<th>
+商品名
+</th>
+
+<th>
+販売数
+</th>
+
+<th>
+売上
+</th>
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="topProducts">
+
+
+<tr>
+
+
+<td colspan="4">
+
+データがありません
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+<!-- =========================
+     カテゴリ売上
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+📈 カテゴリ売上
+
+</h2>
+
+
+
+<table class="dashboard-table">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+カテゴリ
+
+</th>
+
+
+<th>
+
+売上
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="categorySales">
+
+
+<tr>
+
+
+<td colspan="2">
+
+データがありません
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+<!-- =========================
+     BBQ状況
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+🍖 BBQ状況
+
+</h2>
+
+
+
+<div class="dashboard-grid">
+
+
+
+<div class="card">
+
+
+<h3>
+
+本日の予約
+
+</h3>
+
+
+<div
+ class="value"
+ id="bbqReservationCount"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h3>
+
+来店済
+
+</h3>
+
+
+<div
+ class="value status-ok"
+ id="bbqCheckedInCount"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h3>
+
+未会計
+
+</h3>
+
+
+<div
+ class="value status-danger"
+ id="bbqWaitingPayment"
+>
+
+0
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+
+<h3>
+
+残り枠
+
+</h3>
+
+
+<div
+ class="value"
+ id="bbqRemaining"
+>
+
+-
+
+</div>
+
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+<!-- =========================
+     会計待ち
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+🧾 会計待ち一覧
+
+</h2>
+
+
+
+<table class="dashboard-table">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+
+受付時間
+
+</th>
+
+
+<th>
+
+お客様
+
+</th>
+
+
+<th>
+
+内容
+
+</th>
+
+
+<th>
+
+状態
+
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="waitingPayment">
+
+
+<tr>
+
+
+<td colspan="4">
+
+会計待ちはありません
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+<!-- =========================
+     お知らせ
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+📢 お知らせ
+
+</h2>
+
+
+
+<table class="dashboard-table">
+
+
+<tbody id="dashboardNotice">
+
+
+<tr>
+
+
+<td>
+
+お知らせはありません
+
+</td>
+
+
+</tr>
+
+
+</tbody>
+
+
+</table>
+
+
+</section>
+
+
+
+<!-- =========================
+     クイックメニュー
+========================= -->
+
+
+<section class="dashboard-section">
+
+
+<h2>
+
+⚡ クイックメニュー
+
+</h2>
+
+
+
+<div class="dashboard-grid">
+
+
+
+<a
+ href="admin-orders.html"
+ class="card"
+>
+
+
+<h3>
+
+📋 注文確認
+
+</h3>
+
+
+</a>
+
+
+
+
+<a
+ href="admin-sales.html"
+ class="card"
+>
+
+
+<h3>
+
+💴 売上確認
+
+</h3>
+
+
+</a>
+
+
+
+
+<a
+ href="admin-products.html"
+ class="card"
+>
+
+
+<h3>
+
+🍙 商品管理
+
+</h3>
+
+
+</a>
+
+
+
+
+<a
+ href="admin-products-sort.html"
+ class="card"
+>
+
+
+<h3>
+
+🔀 表示順管理
+
+</h3>
+
+
+</a>
+
+
+
+
+<a
+ href="admin-business-calendar.html"
+ class="card"
+>
+
+
+<h3>
+
+📅 営業日管理
+
+</h3>
+
+
+</a>
+
+
+
+
+<a
+ href="admin-settings.html"
+ class="card"
+>
+
+
+<h3>
+
+⚙ ショップ設定
+
+</h3>
+
+
+</a>
+
+
+
+</div>
+
+
+</section>
+
+
+
+</main>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script src="js/config.js"></script>
+
+<script src="js/dashboard.js"></script>
+
+<script src="js/admin-auth.js"></script>
+
+
+
+</body>
+
+</html>

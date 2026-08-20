@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>商品管理</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+th {
+  background: #f5f5f5;
+}
+
+input, select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.save-btn {
+  background: #28a745;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-card {
+  background: #fff;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <div class="container header-inner">
+    <div>
+      <h1>商品管理</h1>
+      <p>商品マスタ編集</p>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<div class="admin-top-buttons">
+
+<a
+id="backLink"
+class="back-btn"
+>
+← 管理画面へ戻る
+</a>
+
+
+<button
+class="add-product-btn"
+onclick="openAddProduct()">
+
+＋ 商品追加
+
+</button>
+
+</div>
+
+<br><br>
+
+  <div 
+    id="productList"
+    class="product-management-list">
+  </div>
+
+<!-- 商品追加 -->
+<div 
+  id="addProductArea"
+  class="add-card"
+  style="display:none;">
+
+  <h2>商品追加</h2>
+
+  <input id="newName" placeholder="商品名"><br><br>
+  <input id="newPrice" type="number" placeholder="価格"><br><br>
+  <input id="newKitchenPrice" type="number" placeholder="キッチンカー価格"><br><br>
+  <input id="newDescription" placeholder="説明"><br><br>
+
+  <div id="dropArea" class="drop-area">
+
+  画像をドラッグ＆ドロップ<br>
+  またはクリックして選択
+
+  <input
+    type="file"
+    id="newImageFile"
+    accept="image/*"
+    style="display:none"
+  >
+
+  </div><br><br>
+
+  <img id="newPreview" class="preview-image">
+  <input id="newImage" readonly
+  placeholder="画像を選択するとURLが入ります"
+  style="background:#f5f5f5;"><br><br>
+
+  <select id="newType">
+    <option value="onigiri">onigiri</option>
+    <option value="drink">drink</option>
+    <option value="bbq">bbq</option>
+    <option value="bbq-option">bbq-option</option>
+  </select>
+
+  <br><br>
+
+  <input id="newSort" type="number" placeholder="表示順"><br><br>
+  <label>
+店舗表示
+</label>
+
+<select id="newStore">
+  <option value="○">○</option>
+  <option value="×">×</option>
+</select>
+
+<br><br>
+
+
+<label>
+スタッフ表示
+</label>
+
+<select id="newStaff">
+  <option value="○">○</option>
+  <option value="×">×</option>
+</select>
+
+<br><br>
+
+
+<label>
+タブレット表示
+</label>
+
+<select id="newTablet">
+  <option value="○">○</option>
+  <option value="×">×</option>
+</select>
+
+<br><br>
+
+
+<label>
+キッチンカー表示
+</label>
+
+<select id="newKitchenCar">
+
+  <option value="×">×</option>
+  <option value="○">○</option>
+
+</select>
+
+<br><br>
+  
+  <button id="addButton" onclick="addProduct()">
+  商品追加
+  </button>
+
+  <div
+  id="uploadStatus"
+  class="loading">
+  </div>
+
+</div>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/cloudinary.js"></script>
+<script src="js/admin-products.js"></script>
+
+<script>
+
+const params =
+new URLSearchParams(
+  location.search
+);
+
+const from =
+params.get("from");
+
+
+const backLink =
+document.getElementById(
+  "backLink"
+);
+
+
+if(backLink){
+
+  if(from === "kitchen"){
+
+    backLink.href =
+      "kitchen-index.html";
+
+    backLink.textContent =
+      "← キッチンカー管理へ戻る";
+
+  }else{
+
+    backLink.href =
+      "admin.html";
+
+    backLink.textContent =
+      "← 管理画面へ戻る";
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>

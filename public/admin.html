@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+
+>
+
+<title>
+  店舗管理画面
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+<style>
+
+.admin-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(auto-fit,minmax(250px,1fr));
+
+  gap:20px;
+
+  margin-top:30px;
+
+}
+
+.admin-card{
+
+  background:#fff;
+
+  border-radius:10px;
+
+  padding:25px;
+
+  text-align:center;
+
+  box-shadow:
+    0 2px 6px
+    rgba(0,0,0,.1);
+
+}
+
+.admin-card h2{
+
+  margin-bottom:15px;
+
+}
+
+.admin-card a{
+
+  display:block;
+
+  background:#007bff;
+
+  color:#fff;
+
+  text-decoration:none;
+
+  padding:12px;
+
+  border-radius:8px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container header-inner">
+
+    <div>
+
+      <h1>
+        店舗管理画面
+      </h1>
+
+      <p>
+        BBQ・おにぎり管理
+      </p>
+
+    </div>
+
+    <div class="header-right">
+
+      <div id="loginUser">
+      </div>
+
+      <a
+        href="#"
+        class="logout-btn"
+        onclick="logout();return false;"
+      >
+        ログアウト
+      </a>
+
+    </div>
+
+  </div>
+
+</header>
+
+<div class="container">
+
+<div class="admin-grid">
+
+  <div class="admin-card">
+
+    <h2>
+      ダッシュボード
+    </h2>
+
+    <a href="dashboard.html">
+      開く
+    </a>
+
+  </div>
+
+  <div class="admin-card">
+
+    <h2>
+      本日の予約一覧
+    </h2>
+
+    <a href="admin-reservations.html">
+      開く
+    </a>
+
+  </div>
+
+  <div class="admin-card">
+
+    <h2>
+    おにぎり未会計一覧
+  </h2>
+
+  <a href="admin-onigiri-unpaid.html">
+    開く
+  </a>
+
+</div>
+
+<div class="admin-card">
+
+  <h2>
+    BBQ未会計一覧
+  </h2>
+
+  <a href="admin-bbq-unpaid.html">
+    開く
+  </a>
+
+</div>
+
+<!--  <div class="admin-card">       -->
+<!--                                 -->
+<!--    <h2>                         -->
+<!--      予約検索                   -->
+<!--    </h2>                        -->
+<!--                                 -->
+<!--    <a href="admin-search.html"> -->
+<!--      開く                       -->
+<!--    </a>                         -->
+<!--                                 -->
+<!--  </div>                         -->
+
+  <div class="admin-card">
+
+    <h2>
+      注文履歴
+    </h2>
+
+    <a href="admin-orders.html">
+      開く
+    </a>
+
+  </div>
+
+  <div class="admin-card">
+
+    <h2>
+      売上確認
+    </h2>
+
+    <a href="admin-sales.html">
+      開く
+    </a>
+
+  </div>
+
+  <div class="admin-card">
+　
+    <h2>
+      売上取消
+    </h2>
+
+    <a href="sales-cancel.html?from=admin">
+    開く
+</a>
+</div>  
+  <div class="admin-card">
+
+  <h2>
+    商品管理
+  </h2>
+
+  <a href="admin-products.html">
+
+    開く
+
+  </a>
+
+</div>
+
+<div class="admin-card">
+  
+<h2>
+  材料マスタ
+</h2>
+
+<a href="admin-materials.html">
+  開く
+</a>
+
+</div>
+  
+<div class="admin-card">
+<h2>
+  レシピ管理
+</h2>
+
+<a href="admin-recipes.html">
+  開く
+</a>
+
+</div>
+
+  <!-- =========================
+       表示順管理
+       ========================= -->
+
+  <div class="admin-card">
+
+    <h2>
+      表示順管理
+    </h2>
+
+    <a href="admin-products-sort.html?from=admin">
+      開く
+    </a>
+
+  </div>
+  
+  <div class="admin-card">
+
+    <h2>
+      ＢＢＱカレンダー管理
+    </h2>
+
+    <a href="admin-calendar.html">
+      開く
+    </a>
+
+</div>
+
+  <div class="admin-card">
+    <h2>
+      営業日カレンダー管理
+    </h2>
+
+    <a href="admin-business-calendar.html">
+      開く
+    </a>
+    
+  </div>
+
+  <div class="admin-card">
+
+  <h2>
+    店舗情報管理
+  </h2>
+
+  <a href="admin-shop.html">
+    開く
+  </a>
+
+</div>
+
+  <div
+    class="admin-card"
+    id="adminUserCard"
+    style="display:none;"
+  >
+
+    <h2>
+      ユーザー管理
+    </h2>
+
+    <a href="admin-users.html">
+      開く
+    </a>
+
+  </div>
+
+ </div>
+
+</div>
+
+<script src="js/config.js"></script>
+
+<script src="js/admin-auth.js"></script>
+
+<script>
+
+const adminUser =
+  JSON.parse(
+    localStorage.getItem("adminUser")
+  );
+
+if(adminUser){
+
+  document
+    .getElementById("loginUser")
+    .textContent =
+      `${adminUser.name} (${adminUser.id})`;
+
+}
+
+if(
+  adminUser &&
+  adminUser.role === "owner"
+){
+
+  document
+    .getElementById("adminUserCard")
+    .style.display = "block";
+
+}
+
+</script>
+
+</body>
+
+</html>

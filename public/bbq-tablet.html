@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>BBQ追加注文</title>
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    .btn {
+      display: inline-block;
+      padding: 12px 18px;
+      margin: 5px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .btn-checkin {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-order {
+      background: #007bff;
+      color: white;
+    }
+
+    .reservation-card {
+      background: #fff;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    #currentReservation {
+      background: #fff3cd;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+  </style>
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container header-inner">
+
+    <div>
+
+      <h1>BBQ追加注文</h1>
+
+      <p>当日追加オーダー</p>
+
+    </div>
+
+  </div>
+
+</header>
+
+<!-- =========================
+  現在選択中の予約
+========================= -->
+<section class="container">
+
+  <h2>選択中の予約</h2>
+
+  <div id="currentReservation">
+    予約を選択してください
+  </div>
+
+</section>
+
+<!-- =========================
+  予約番号検索
+========================= -->
+<section class="container">
+
+  <h2>予約番号検索</h2>
+
+  <input type="text" id="reservationNo" placeholder="予約番号を入力">
+
+  <button class="order-btn" onclick="searchReservation()">
+    検索
+  </button>
+
+  
+</section>
+
+<!-- =========================
+  本日の予約一覧（ここが重要）
+========================= -->
+<section class="container">
+
+  <h2>本日のご予約</h2>
+
+  <div id="reservationList"></div>
+
+</section>
+
+<!-- =========================
+  商品
+========================= -->
+<section class="products container">
+
+  <div class="section-title">
+    <h2>追加メニュー</h2>
+  </div>
+
+  <div class="product-grid" id="productGrid"></div>
+
+</section>
+
+<!-- =========================
+  カート
+========================= -->
+<section class="container">
+
+  <h2>注文内容</h2>
+
+  <div id="cartArea"></div>
+
+  <button class="clear-btn" onclick="clearCart()">
+    カートを空にする
+  </button>
+
+  <button class="order-btn" onclick="sendTabletOrder()">
+    追加注文を送信
+  </button>
+
+</section>
+
+<script src="js/config.js"></script>
+
+<script src="js/bbq-tablet.js"></script>
+
+
+
+
+</body>
+</html>
