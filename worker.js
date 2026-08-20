@@ -1387,51 +1387,224 @@ async function handleBBQPaid(request, env) {
 
 }
 
+// =========================
+// BBQ予約管理
+// =========================
 async function handleReservations(request, env) {
 
+
+  // =========================
+  // 本日の予約取得
+  // =========================
   if (
     request.method === "GET" &&
     request.url.includes("/today")
   ) {
 
-    const res = await fetch(
-      env.GAS_URL + "?mode=todayReservations"
-    );
+    try {
 
-    const text = await res.text();
+      const result =
+        await env.DB
+          .prepare(`
+            SELECT *
+            FROM bbq_reservations
+            WHERE use_date = date('now','localtime')
+            ORDER BY id ASC
+          `)
+          .all();
 
-    console.log("GAS RAW =", text);
 
-    return json(JSON.parse(text));
+      return json(
+        result.results || []
+      );
 
-  }
 
-  // BBQ予約保存
-  if (request.method === "POST") {
+    } catch(error) {
 
-    const body = await request.json();
 
-    const res = await fetch(
-      env.GAS_URL,
-      {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json"
+      console.error(
+        "todayReservations error",
+        error
+      );
+
+
+      return json(
+        {
+          success:false,
+          message:"予約取得エラー"
         },
-        body:JSON.stringify({
-          mode:"saveBBQReservation",
-          ...body
-        })
-      }
-    );
+        500
+      );
 
-    return json(await res.json());
+
+    }
 
   }
+
+
+
+  // =========================
+  // BBQ予約保存
+  // =========================
+  if (
+    request.method === "POST"
+  ) {
+
+
+    let body;
+
+
+    try {
+
+      body =
+        await request.json();
+
+    } catch {
+
+
+      return json(
+        {
+          success:false,
+          message:"Invalid JSON"
+        },
+        400
+      );
+
+    }
+
+
+
+    const {
+
+      useDate,
+      plan,
+      unitPrice,
+      people,
+      customerName,
+      customerTel,
+      memo = ""
+
+    } = body;
+
+
+
+    if (
+      !useDate ||
+      !plan ||
+      !customerName ||
+      !customerTel
+    ) {
+
+
+      return json(
+        {
+          success:false,
+          message:"Missing required fields"
+        },
+        400
+      );
+
+
+    }
+
+
+
+    // =========================
+    // 予約番号生成
+    // GAS互換
+    // BBQ-XXXXXXXX
+    // =========================
+    const reservationNo =
+
+      "BBQ-" +
+
+      crypto
+        .randomUUID()
+        .replace(/-/g,"")
+        .slice(0,8)
+        .toUpperCase();
+
+
+
+    const reservationDate =
+
+      new Date()
+        .toLocaleString(
+          "ja-JP",
+          {
+            timeZone:"Asia/Tokyo"
+          }
+        );
+
+
+
+    const amount =
+
+      Number(unitPrice || 0) *
+      Number(people || 0);
+
+
+
+    // =========================
+    // D1保存
+    // =========================
+    await env.DB
+      .prepare(`
+        INSERT INTO bbq_reservations
+        (
+          reservation_no,
+          reservation_date,
+          use_date,
+          customer_name,
+          customer_tel,
+          people,
+          plan,
+          unit_price,
+          amount,
+          memo,
+          status,
+          paid
+        )
+        VALUES
+        (?,?,?,?,?,?,?,?,?,?,?,?)
+      `)
+      .bind(
+
+        reservationNo,
+        reservationDate,
+        useDate,
+        customerName,
+        customerTel,
+        Number(people),
+        plan,
+        Number(unitPrice),
+        amount,
+        memo,
+        "未",
+        "未"
+
+      )
+      .run();
+
+
+
+    return json({
+
+      success:true,
+
+      reservationNo
+
+    });
+
+
+  }
+
+
 
   return json(
     {
-      error:"method error"
+      success:false,
+      message:"method error"
     },
     405
   );
