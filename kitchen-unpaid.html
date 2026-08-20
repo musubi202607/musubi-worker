@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0"
+>
+
+<title>
+キッチンカー未会計一覧
+</title>
+
+
+<link
+rel="stylesheet"
+href="css/style.css"
+>
+
+
+<link
+rel="manifest"
+href="kitchen-manifest.json"
+>
+
+
+<meta
+name="theme-color"
+content="#4CAF50"
+>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="container header-inner">
+
+<h1>
+未会計一覧
+</h1>
+
+</div>
+
+</header>
+
+
+
+<main class="container">
+
+
+<a
+href="kitchen-index.html"
+class="back-btn"
+>
+
+← 戻る
+
+</a>
+
+
+
+<div
+id="unpaidList"
+>
+
+</div>
+
+
+
+</main>
+
+
+
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/kitchen-unpaid.js"></script>
+
+
+
+<script>
+
+if(
+"serviceWorker" in navigator
+){
+
+window.addEventListener(
+
+"load",
+
+()=>{
+
+navigator.serviceWorker.register(
+
+"kitchen-service-worker.js"
+
+);
+
+}
+
+);
+
+}
+
+</script>
+
+
+</body>
+
+</html>

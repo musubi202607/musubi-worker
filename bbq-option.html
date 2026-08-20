@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+BBQ追加注文
+</title>
+
+
+<link
+rel="stylesheet"
+href="css/style.css"
+>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="container header-inner">
+
+
+<div>
+
+<h1>
+BBQ追加注文
+</h1>
+
+
+<p>
+BBQ予約済みのお客様向け
+</p>
+
+
+</div>
+
+
+</div>
+
+</header>
+
+
+
+<div class="container">
+
+
+<a
+href="#"
+id="backButton"
+class="back-btn"
+>
+
+← 戻る
+
+</a>
+
+
+</div>
+
+
+
+
+
+<!-- 予約一覧 -->
+
+<section class="container">
+
+
+<div class="section-title">
+
+<h2>
+本日の予約
+</h2>
+
+</div>
+
+
+<div
+id="reservationList"
+>
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- 選択中予約 -->
+
+
+<section class="container">
+
+
+<div
+id="currentReservation"
+>
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- 商品エリア -->
+
+
+<div id="productArea">
+
+
+
+
+
+<!-- 追加商品 -->
+
+
+<section class="products container">
+
+
+<div class="section-title">
+
+
+<h2>
+追加商品
+</h2>
+
+
+</div>
+
+
+
+<div
+class="product-grid"
+id="optionGrid"
+>
+
+</div>
+
+
+</section>
+
+
+
+
+
+<!-- ドリンク -->
+
+
+<section class="products container">
+
+
+<div class="section-title">
+
+
+<h2>
+ドリンク
+</h2>
+
+
+</div>
+
+
+
+<div
+class="product-grid"
+id="drinkGrid"
+>
+
+</div>
+
+
+</section>
+
+
+
+
+
+
+<!-- カート -->
+
+
+<section class="container">
+
+
+<div class="section-title">
+
+
+<h2>
+カート
+</h2>
+
+
+</div>
+
+
+
+<div
+id="cartArea"
+>
+
+</div>
+
+
+
+<div
+id="cartSummary"
+class="cart-summary"
+>
+
+</div>
+
+
+
+
+
+<div
+style="
+display:flex;
+gap:10px;
+margin-top:20px;
+"
+>
+
+
+
+<button
+class="order-btn"
+onclick="clearCart()"
+>
+
+カートクリア
+
+</button>
+
+
+
+
+<button
+class="order-btn"
+onclick="sendBbqOptionOrder()"
+>
+
+注文送信
+
+</button>
+
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+</div>
+
+
+
+
+
+
+<script>
+
+
+document.addEventListener(
+'DOMContentLoaded',
+function(){
+
+
+const productArea =
+document.getElementById(
+'productArea'
+);
+
+
+
+if(productArea){
+
+productArea.style.display =
+'none';
+
+}
+
+
+
+}
+
+);
+
+
+
+</script>
+
+
+
+
+
+<script src="js/config.js"></script>
+
+<script src="js/cart.js"></script>
+
+<script src="js/bbq-option.js"></script>
+
+
+
+
+
+<script>
+
+
+// =========================
+// 戻り先設定
+// =========================
+
+
+const mode =
+localStorage.getItem(
+"bbqOptionBack"
+);
+
+
+
+const backButton =
+document.getElementById(
+"backButton"
+);
+
+
+
+if(mode === "tablet"){
+
+
+backButton.href =
+"tablet.html";
+
+
+backButton.innerHTML =
+"← タブレットへ戻る";
+
+
+}else{
+
+
+backButton.href =
+"staff.html";
+
+
+backButton.innerHTML =
+"← 店舗メニューへ戻る";
+
+
+}
+
+
+
+</script>
+
+
+
+</body>
+</html>

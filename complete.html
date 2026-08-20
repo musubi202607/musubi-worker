@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+注文完了
+</title>
+
+<link
+rel="stylesheet"
+href="css/style.css">
+
+<style>
+
+.complete-box{
+
+  text-align:center;
+
+  padding:50px 20px;
+
+}
+
+.complete-box h1{
+
+  color:#28a745;
+
+  margin-bottom:20px;
+
+}
+
+.complete-box p{
+
+  margin-bottom:30px;
+
+  font-size:18px;
+
+}
+
+.complete-btn{
+
+  display:inline-block;
+
+  padding:12px 30px;
+
+  background:#007bff;
+
+  color:#fff;
+
+  text-decoration:none;
+
+  border-radius:8px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="container header-inner">
+
+<h1>
+注文完了
+</h1>
+
+</div>
+
+</header>
+
+<div class="container">
+
+<div class="complete-box">
+
+<h1>
+ご注文ありがとうございました
+</h1>
+
+<p>
+
+ご注文を受付しました。<br>
+受取時間になりましたら店舗へお越しください。
+
+</p>
+
+<div
+style="
+margin:30px auto;
+padding:20px;
+background:#fff;
+border-radius:10px;
+max-width:400px;
+box-shadow:0 2px 6px rgba(0,0,0,.1);
+">
+
+<p>
+<strong>注文番号</strong>
+</p>
+
+<h2 id="orderNo">
+-
+</h2>
+
+<p>
+<strong>受取時間</strong>
+</p>
+
+<h2 id="pickupTime">
+-
+</h2>
+
+</div>
+
+<a
+href="index.html"
+class="complete-btn">
+
+トップページへ戻る
+
+</a>
+
+</div>
+
+</div>
+
+<script>
+
+document.getElementById("orderNo").innerText =
+  sessionStorage.getItem("orderNo") || "-";
+
+document.getElementById("pickupTime").innerText =
+  sessionStorage.getItem("pickupTime") || "-";
+
+</script>
+
+</body>
+
+</html>

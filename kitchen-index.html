@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>むすび キッチンカー管理</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="manifest" href="kitchen-manifest.json">
+
+<meta name="theme-color" content="#4CAF50">
+<meta http-equiv="Cache-Control" content="no-cache">
+</head>
+
+<body>
+
+<header>
+<div class="container header-inner">
+
+<h1>キッチンカー管理</h1>
+
+<a href="#" onclick="logout();return false;"
+style="
+font-size:14px;
+color:white;
+text-decoration:none;
+background:#f44336;
+padding:8px 12px;
+border-radius:8px;
+">
+ログアウト
+</a>
+
+</div>
+</header>
+
+
+<main class="container">
+
+<div class="shop-info-card">
+
+<h2>メニュー</h2>
+
+
+<a href="kitchen.html"
+style="
+display:block;
+margin:15px 0;
+padding:20px;
+background:#4CAF50;
+color:white;
+text-align:center;
+border-radius:10px;
+font-size:22px;
+text-decoration:none;
+">
+注文受付
+</a>
+
+
+<a href="kitchen-unpaid.html"
+style="
+display:block;
+margin:15px 0;
+padding:20px;
+background:#ff9800;
+color:white;
+text-align:center;
+border-radius:10px;
+font-size:22px;
+text-decoration:none;
+">
+未会計一覧<br>
+<span id="unpaidCount" style="font-size:18px;">
+確認中...
+</span>
+</a>
+
+
+<a href="kitchen-sales.html"
+style="
+display:block;
+margin:15px 0;
+padding:20px;
+background:#2196F3;
+color:white;
+text-align:center;
+border-radius:10px;
+font-size:22px;
+text-decoration:none;
+">
+売上確認
+</a>
+
+
+<a href="admin-products.html?from=kitchen"
+style="
+display:block;
+margin:15px 0;
+padding:20px;
+background:#9C27B0;
+color:white;
+text-align:center;
+border-radius:10px;
+font-size:22px;
+text-decoration:none;
+">
+商品管理
+</a>
+
+<a href="admin-products-sort.html?from=kitchen"
+style="
+display:block;
+margin:15px 0;
+padding:20px;
+background:#673AB7;
+color:white;
+text-align:center;
+border-radius:10px;
+font-size:22px;
+text-decoration:none;
+">
+表示順管理
+</a>
+
+</div>
+
+</main>
+
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/kitchen-index.js"></script>
+
+
+<script>
+if("serviceWorker" in navigator){
+window.addEventListener("load",()=>{
+navigator.serviceWorker.register("kitchen-service-worker.js");
+});
+}
+</script>
+<script>
+
+window.addEventListener(
+"pageshow",
+function(event){
+
+  if(event.persisted){
+
+    location.reload();
+
+  }
+
+});
+
+</script>
+</body>
+</html>

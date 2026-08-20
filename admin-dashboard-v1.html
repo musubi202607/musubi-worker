@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>ダッシュボード</title>
+
+<link
+rel="stylesheet"
+href="css/style.css">
+
+<style>
+
+.dashboard-grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(2,1fr);
+
+  gap:20px;
+
+  margin-top:20px;
+
+}
+
+.card{
+
+  background:#fff;
+
+  padding:20px;
+
+  border-radius:10px;
+
+  box-shadow:0 2px 6px rgba(0,0,0,.1);
+
+  text-align:center;
+
+}
+
+.card h3{
+
+  margin-bottom:10px;
+
+}
+
+.value{
+
+  font-size:28px;
+
+  font-weight:bold;
+
+  color:#007bff;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="container header-inner">
+
+<h1>ダッシュボード</h1>
+
+</div>
+
+</header>
+
+<div class="container">
+
+<a
+href="admin.html"
+class="back-btn">
+
+← 管理画面へ戻る
+
+</a>
+
+<div class="dashboard-grid">
+
+<div class="card">
+<h3>本日の予約</h3>
+<div class="value" id="reservationCount">0</div>
+</div>
+
+<div class="card">
+<h3>来店済</h3>
+<div class="value" id="checkedInCount">0</div>
+</div>
+
+<div class="card">
+<h3>BBQ未会計</h3>
+<div class="value" id="bbqUnpaidCount">0</div>
+</div>
+
+<div class="card">
+<h3>おにぎり未会計</h3>
+<div class="value" id="onigiriUnpaidCount">0</div>
+</div>
+
+<div class="card">
+<h3>BBQ売上</h3>
+<div class="value" id="bbqSales">¥0</div>
+</div>
+
+<div class="card">
+<h3>オプション売上</h3>
+<div class="value" id="optionSales">¥0</div>
+</div>
+
+<div class="card">
+<h3>おにぎり売上</h3>
+<div class="value" id="onigiriSales">¥0</div>
+</div>
+
+<div class="card">
+<h3>総売上</h3>
+<div class="value" id="totalSales">¥0</div>
+</div>
+
+</div>
+
+</div>
+
+<script src="js/config.js"></script>
+
+<script>
+
+async function loadDashboard(){
+
+  const token =
+    localStorage.getItem("adminToken");
+
+  const response =
+    await fetch(
+      API_URL + "/api/dashboard",
+      {
+        headers:{
+          Authorization:
+            "Bearer " + token
+        }
+      }
+    );
+
+  if(!response.ok){
+
+    alert("認証エラーです。再度ログインしてください。");
+
+    location.href = "login.html";
+
+    return;
+
+  }
+
+  const data =
+    await response.json();
+
+  document.getElementById("reservationCount").innerText =
+    data.reservationCount || 0;
+
+  document.getElementById("checkedInCount").innerText =
+    data.checkedInCount || 0;
+
+  document.getElementById("bbqUnpaidCount").innerText =
+    data.bbqUnpaidCount || 0;
+
+  document.getElementById("onigiriUnpaidCount").innerText =
+    data.onigiriUnpaidCount || 0;
+
+  document.getElementById("bbqSales").innerText =
+    "¥" + Number(data.bbqSales || 0).toLocaleString();
+
+  document.getElementById("optionSales").innerText =
+    "¥" + Number(data.optionSales || 0).toLocaleString();
+
+  document.getElementById("onigiriSales").innerText =
+    "¥" + Number(data.onigiriSales || 0).toLocaleString();
+
+  document.getElementById("totalSales").innerText =
+    "¥" + Number(data.totalSales || 0).toLocaleString();
+
+}
+
+loadDashboard();
+
+</script>
+
+<script src="js/admin-auth.js"></script>
+
+</body>
+
+</html>

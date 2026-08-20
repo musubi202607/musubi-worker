@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>おにぎり未会計一覧</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+
+th, td{
+  border:1px solid #ddd;
+  padding:10px;
+  text-align:center;
+}
+
+th{
+  background:#f5f5f5;
+}
+
+.paid-btn{
+  background:#28a745;
+  color:#fff;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.paid-btn:hover{
+  opacity:.85;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="container header-inner">
+
+<h1>
+おにぎり未会計一覧
+</h1>
+
+</div>
+
+</header>
+
+
+
+<div class="container">
+
+
+<a href="admin.html" class="back-btn">
+
+← 管理画面へ戻る
+
+</a>
+
+
+<br><br>
+
+
+
+<table>
+
+
+<thead>
+
+<tr>
+
+<th>注文番号</th>
+
+<th>受取時間</th>
+
+<th>氏名</th>
+
+<th>電話番号</th>
+
+<th>商品</th>
+
+<th>合計金額</th>
+
+<th>状態</th>
+
+<th>会計</th>
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody id="result"></tbody>
+
+
+
+</table>
+
+
+
+</div>
+
+
+
+<script src="js/config.js"></script>
+
+<script src="js/admin-auth.js"></script>
+
+
+
+<script>
+
+
+// =========================
+// 未会計取得
+// =========================
+
+async function loadData(){
+
+
+try{
+
+
+const response =
+
+await fetch(
+
+API_URL +
+"/api/unpaid?type=onigiri",
+
+{
+
+headers:{
+
+Authorization:
+
+"Bearer " +
+
+localStorage.getItem(
+"adminToken"
+)
+
+}
+
+}
+
+);
+
+
+
+const data =
+
+await response.json();
+
+
+
+// =========================
+// エラー確認
+// =========================
+
+if(!response.ok){
+
+console.error(data);
+
+alert(
+data.message ||
+"取得失敗"
+);
+
+return;
+
+}
+
+
+
+// =========================
+// 配列確認
+// =========================
+
+if(!Array.isArray(data)){
+
+
+console.error(
+"データ形式エラー",
+data
+);
+
+
+alert(
+"データ取得形式エラー"
+);
+
+
+return;
+
+
+}
+
+
+
+
+let html = "";
+
+
+
+data.forEach(order=>{
+
+
+let itemsHtml = "";
+
+
+
+(order.items || [])
+
+.forEach(item=>{
+
+
+itemsHtml +=
+
+`${item.name} × ${item.qty}<br>`;
+
+
+});
+
+
+
+html += `
+
+
+<tr>
+
+
+<td>
+
+${order.orderNo || ""}
+
+</td>
+
+
+<td>
+
+${order.pickupTime || ""}
+
+</td>
+
+
+<td>
+
+${order.customerName || ""}
+
+</td>
+
+
+<td>
+
+${order.customerTel || ""}
+
+</td>
+
+
+<td>
+
+${itemsHtml}
+
+</td>
+
+
+<td>
+
+¥${Number(
+order.total || 0
+).toLocaleString()}
+
+</td>
+
+
+<td>
+
+未会計
+
+</td>
+
+
+<td>
+
+
+<button
+
+class="paid-btn"
+
+onclick="paidComplete(
+
+'${order.orderNo}'
+
+)">
+
+会計済
+
+</button>
+
+
+</td>
+
+
+
+</tr>
+
+
+`;
+
+
+});
+
+
+
+document.getElementById(
+"result"
+).innerHTML = html;
+
+
+
+}
+catch(error){
+
+
+console.error(
+"取得エラー",
+error
+);
+
+
+alert(
+"通信エラー"
+);
+
+
+}
+
+
+
+}
+
+
+
+
+
+// =========================
+// 会計済更新
+// =========================
+
+async function paidComplete(orderNo){
+
+
+
+if(
+!confirm(
+"会計済にしますか？"
+)
+
+){
+
+return;
+
+}
+
+
+
+try{
+
+
+
+const response =
+
+await fetch(
+
+API_URL +
+
+"/api/onigiri/paid",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+
+"application/json",
+
+
+Authorization:
+
+"Bearer " +
+
+localStorage.getItem(
+"adminToken"
+)
+
+
+},
+
+
+body:
+
+JSON.stringify({
+
+orderNo
+
+})
+
+
+}
+
+);
+
+
+
+const result =
+
+await response.json();
+
+
+
+if(result.success){
+
+
+alert(
+"会計済にしました"
+);
+
+
+loadData();
+
+
+
+}else{
+
+
+alert(
+
+result.message ||
+
+"更新失敗"
+
+);
+
+
+}
+
+
+
+}
+catch(error){
+
+
+console.error(error);
+
+
+alert(
+"通信エラー"
+);
+
+
+}
+
+
+
+}
+
+
+
+loadData();
+
+
+</script>
+
+
+
+</body>
+
+</html>

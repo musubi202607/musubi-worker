@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+BBQ追加注文確認
+</title>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="container header-inner">
+
+<div>
+
+<h1>
+BBQ追加注文確認
+</h1>
+
+</div>
+
+</div>
+
+</header>
+
+
+<div class="container">
+
+
+<div class="back-group">
+
+
+<a
+  href="#"
+  id="backMenu"
+  class="back-btn"
+>
+← 戻る
+</a>
+
+
+<a
+  href="bbq-option.html"
+  class="back-btn"
+>
+← BBQ追加注文へ戻る
+</a>
+
+
+</div>
+
+
+
+<div id="orderItems">
+
+</div>
+
+
+
+<input
+  type="date"
+  id="bbqDate"
+>
+
+
+
+<input
+  type="text"
+  id="customerName"
+  placeholder="予約者名"
+>
+
+
+
+<input
+  type="tel"
+  id="customerTel"
+  placeholder="電話番号"
+>
+
+
+
+<textarea
+  id="memo"
+  placeholder="備考"
+></textarea>
+
+
+
+<button
+  class="order-btn"
+  onclick="sendBbqOptionOrder()"
+>
+
+追加注文を送信
+
+</button>
+
+
+
+<button
+  class="clear-btn"
+  onclick="clearBbqOptionCart()"
+>
+
+カートを空にする
+
+</button>
+
+
+
+</div>
+
+
+
+<script src="js/config.js"></script>
+
+<script src="js/bbq-option-order.js"></script>
+
+
+<script>
+
+
+// =========================
+// 戻り先設定
+// =========================
+
+const backMenu =
+document.getElementById(
+  "backMenu"
+);
+
+
+if(backMenu){
+
+
+const from =
+localStorage.getItem(
+  "bbqOptionBack"
+);
+
+
+
+if(from === "tablet"){
+
+
+backMenu.href =
+"tablet.html";
+
+
+backMenu.innerHTML =
+"← タブレットへ戻る";
+
+
+}else{
+
+
+backMenu.href =
+"staff.html";
+
+
+backMenu.innerHTML =
+"← 店舗メニューへ戻る";
+
+
+}
+
+
+}
+
+
+</script>
+
+
+</body>
+</html>

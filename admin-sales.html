@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>売上確認</title>
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+.sales-card{background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,.1);text-align:center;margin-bottom:15px}
+.sales-value{font-size:28px;font-weight:bold;color:#007bff}
+.gross-profit-card .sales-value{color:#28a745}
+.tab-area{display:flex;margin:20px 0;border-radius:10px;overflow:hidden}
+.tab-btn{flex:1;padding:15px;border:none;background:#e0e0e0;font-size:16px;font-weight:bold;cursor:pointer}
+.tab-btn.active{background:#4CAF50;color:#fff}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:20px}
+.quick-btns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 20px}
+.quick-btns button{padding:8px 16px}
+.sales-table{width:100%;border-collapse:collapse;background:#fff}
+.sales-table th,.sales-table td{border:1px solid #ddd;padding:10px;text-align:center}
+.sales-table th{background:#f5f5f5}
+@media(max-width:600px){
+.sales-card{padding:15px 10px}
+.sales-value{font-size:24px}
+.tab-btn{padding:12px 5px;font-size:14px}
+.sales-table{font-size:14px}
+.sales-table th,.sales-table td{padding:8px 5px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<div class="container header-inner">
+<h1>売上確認</h1>
+</div>
+</header>
+
+<main class="container">
+
+<a href="admin.html" class="back-btn">← 戻る</a>
+<br><br>
+
+<div class="shop-info-card">
+
+<label>開始日</label>
+
+<input type="date" id="startDate">
+
+<label style="margin-left:20px;">終了日</label>
+
+<input type="date" id="endDate">
+
+<div class="quick-btns">
+
+<button onclick="setToday()">当日</button>
+
+<button onclick="setThisMonth()">当月</button>
+
+<button onclick="setLastMonth()">前月</button>
+
+<button onclick="loadSales()">集計</button>
+
+<button onclick="downloadSalesCSV()">CSV出力</button>
+
+</div>
+
+</div>
+
+<div class="tab-area">
+
+<button id="tabStore" class="tab-btn active" onclick="showSalesTab('store')">
+店舗
+</button>
+
+<button id="tabKitchen" class="tab-btn" onclick="showSalesTab('kitchen')">
+キッチンカー
+</button>
+
+<button id="tabTotal" class="tab-btn" onclick="showSalesTab('total')">
+総合
+</button>
+
+</div>
+
+<!-- =========================
+店舗
+========================= -->
+
+<div id="storeTab" class="tab-content active">
+
+<div class="summary-grid">
+
+<div class="sales-card">
+<h3>おにぎり</h3>
+<div class="sales-value" id="onigiriSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>BBQ</h3>
+<div class="sales-value" id="bbqSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>オプション</h3>
+<div class="sales-value" id="optionSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>店舗売上</h3>
+<div class="sales-value" id="storeTotalSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>店舗原価</h3>
+<div class="sales-value" id="storeTotalCost">¥0</div>
+</div>
+
+<div class="sales-card gross-profit-card">
+<h3>店舗粗利</h3>
+<div class="sales-value" id="storeGrossProfit">¥0</div>
+</div>
+
+</div>
+
+<div class="shop-info-card">
+
+<h2>商品分析ランキング</h2>
+
+<div class="quick-btns">
+
+<label>並び順</label>
+
+<select id="storeAnalysisSort" onchange="updateStoreAnalysis()">
+
+<option value="amount">
+売上順
+</option>
+
+<option value="qty">
+販売数量順
+</option>
+
+<option value="grossProfit">
+粗利順
+</option>
+
+</select>
+
+</div>
+
+
+<table class="sales-table">
+
+<thead>
+<tr>
+<th>順位</th>
+<th>商品名</th>
+<th>カテゴリ</th>
+<th>数量</th>
+<th>売上</th>
+<th>原価</th>
+<th>粗利</th>
+<th>粗利率</th></tr>
+</thead>
+
+<tbody id="storeAnalysisTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+  
+<!-- =========================
+キッチンカー
+========================= -->
+
+<div id="kitchenTab" class="tab-content">
+
+<div class="summary-grid">
+
+<div class="sales-card">
+<h3>キッチンカー売上</h3>
+<div class="sales-value" id="kitchenTotalSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>キッチンカー原価</h3>
+<div class="sales-value" id="kitchenTotalCost">¥0</div>
+</div>
+
+<div class="sales-card gross-profit-card">
+<h3>キッチンカー粗利</h3>
+<div class="sales-value" id="kitchenGrossProfit">¥0</div>
+</div>
+
+</div>
+
+<div class="shop-info-card">
+  
+<h2>商品分析ランキング</h2>
+
+<div class="quick-btns">
+
+<label>並び順</label>
+
+<select id="kitchenAnalysisSort" onchange="updateKitchenAnalysis()">
+
+<option value="amount">
+売上順
+</option>
+
+<option value="qty">
+販売数量順
+</option>
+
+<option value="grossProfit">
+粗利順
+</option>
+
+</select>
+
+</div>
+
+
+<table class="sales-table">
+
+<thead>
+<tr>
+<th>順位</th>
+<th>商品名</th>
+<th>カテゴリ</th>
+<th>数量</th>
+<th>売上</th>
+<th>原価</th>
+<th>粗利</th>
+<th>粗利率</th>
+</tr>
+</thead>
+
+<tbody id="kitchenAnalysisTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+  
+<!-- =========================
+総合
+========================= -->
+
+<div id="totalTab" class="tab-content">
+
+<div class="summary-grid">
+
+<div class="sales-card">
+<h3>店舗売上</h3>
+<div class="sales-value" id="totalStoreSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>キッチンカー売上</h3>
+<div class="sales-value" id="totalKitchenSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>総売上</h3>
+<div class="sales-value" id="grandTotalSales">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>総原価</h3>
+<div class="sales-value" id="grandTotalCost">¥0</div>
+</div>
+
+<div class="sales-card gross-profit-card">
+<h3>総合粗利</h3>
+<div class="sales-value" id="grandGrossProfit">¥0</div>
+</div>
+
+<div class="sales-card">
+<h3>総販売数量</h3>
+<div class="sales-value" id="grandTotalQty">0個</div>
+</div>
+
+</div>
+
+<div class="shop-info-card">
+
+<h2>商品別分析（店舗＋キッチンカー合計）</h2>
+
+<div class="quick-btns">
+
+<label>並び順</label>
+
+<select id="analysisSort" onchange="updateAnalysis()">
+  <option value="amount">売上順</option>
+  <option value="qty">販売数量順</option>
+  <option value="grossProfit">粗利順</option>
+</select>
+
+</div>
+
+<table class="sales-table">
+
+<thead>
+<tr>
+<th>順位</th>
+<th>商品名</th>
+<th>カテゴリ</th>
+<th>数量</th>
+<th>売上</th>
+<th>原価</th>
+<th>粗利</th>
+<th>粗利率</th>
+</tr>
+</thead>
+
+<tbody id="analysisTable"></tbody>
+
+</table>
+
+</div>
+  
+<div class="shop-info-card">
+
+<h2>総合カテゴリ分析</h2>
+
+<table class="sales-table">
+
+<thead>
+<tr>
+<th>カテゴリ</th>
+<th>数量</th>
+<th>売上</th>
+<th>構成比</th>
+<th>原価</th>
+<th>粗利</th>
+<th>粗利率</th>
+</tr>
+</thead>
+  
+<tbody id="categoryAnalysis"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- =========================
+ローディング
+========================= -->
+
+<div id="salesLoading" class="sales-loading">
+
+<div class="loading-box">
+集計中...
+</div>
+
+</div>
+
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+<script src="js/admin-sales.js"></script>
+
+</body>
+</html>

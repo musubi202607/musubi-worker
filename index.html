@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+結び〜musubi〜｜久留米の手作りおにぎり・BBQ予約
+</title>
+
+<meta
+name="description"
+content="久留米の手作りおにぎり店「結び〜musubi〜」。オンライン注文、おにぎり予約、BBQ予約を受付しています。"
+>
+
+<meta
+  name="robots"
+  content="index,follow"
+>
+
+<meta
+  name="google-site-verification"
+  content="7B_sGZqwVIFknaIZkGAgVegkNd3sS2E_xjYJikwp8-U"
+/>
+
+<link
+  rel="stylesheet"
+  href="css/style.css"
+>
+<!-- PWA設定 -->
+<link
+  rel="manifest"
+  href="manifest.json"
+>
+
+<meta
+  name="theme-color"
+  content="#4CAF50"
+>
+
+</head>
+
+<body>
+
+<header>
+
+<div class="container header-inner">
+
+<div>
+
+<h1 id="shopName">
+
+結び〜musubi〜
+
+</h1>
+
+<p id="notice1">
+
+久留米の手作りおにぎり店
+
+</p>
+
+</div>
+
+<div>
+
+<div class="header-actions">
+
+<a
+  href="bbq.html"
+  class="header-btn bbq-btn"
+  title="むすび BBQ予約ページ"
+>
+BBQ予約
+</a>
+
+
+<a
+  href="cart.html"
+  class="header-btn cart-btn"
+>
+カート
+
+<span id="cartCount">
+0
+</span>
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+<section class="hero">
+
+<img
+  id="topImage"
+  src=""
+  alt="久留米の手作りおにぎり店 結び〜musubi〜 店舗外観"
+>
+
+</section>
+
+<section class="container">
+
+<div class="shop-info-card">
+
+<h2>
+
+店舗情報
+
+</h2>
+
+<p>
+
+🕒 営業時間
+
+<br>
+
+<span id="businessHours">
+
+
+
+</span>
+
+</p>
+
+<p>
+
+📅 定休日
+
+<br>
+
+<span id="holidayText">
+
+
+
+</span>
+
+</p>
+
+<p>
+
+🚩 臨時休業
+
+<br>
+
+<span id="holidayList">
+
+</span>
+
+</p>
+
+<p>
+
+☎ 電話番号
+
+<br>
+
+<span id="phone">
+
+</span>
+
+</p>
+
+<p>
+
+📍 住所
+
+<br>
+
+<span id="address">
+
+</span>
+
+</p>
+
+<div class="shop-links">
+
+<a
+ id="instagram"
+ class="shop-link"
+>
+Instagram
+</a>
+
+
+<a
+ id="line"
+ class="shop-link"
+>
+LINE
+</a>
+
+
+<a
+ id="googleMap"
+ class="shop-link"
+>
+GoogleMap
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+<section class="shop-gallery container">
+
+<h2>
+
+店舗写真
+
+</h2>
+
+<div class="gallery-grid">
+
+<img
+  id="shopImage1"
+  src=""
+  alt="店舗写真1"
+>
+
+<img
+  id="shopImage2"
+  src=""
+  alt="店舗写真2"
+>
+
+<img
+  id="shopImage3"
+  src=""
+  alt="店舗写真3"
+>
+
+</div>
+
+</section>
+
+<section class="container">
+
+<div class="shop-info-card">
+
+<h2>
+
+お知らせ
+
+</h2>
+
+<ul id="noticeList">
+
+<li id="notice2"></li>
+
+<li id="notice3"></li>
+
+</ul>
+
+</div>
+
+</section>
+
+<section class="products container">
+
+  <div class="section-title">
+
+    <h2>
+
+      商品一覧
+
+    </h2>
+
+  </div>
+
+  <div
+    class="product-grid"
+    id="productGrid"
+  >
+
+  </div>
+
+</section>
+
+<footer class="container">
+
+  <div class="footer-info">
+
+    <p>
+
+      <strong id="footerShopName">
+
+        むすび
+
+      </strong>
+
+    </p>
+
+    <p>
+
+      TEL：
+
+      <span id="footerPhone">
+
+      </span>
+
+    </p>
+
+    <p>
+
+      営業時間：
+
+      <span id="footerBusinessHours">
+
+      </span>
+
+    </p>
+
+    <p>
+
+      定休日：
+
+      <span id="footerHolidayText">
+
+      </span>
+
+    </p>
+
+    <p>
+
+      © 2026 MUSUBI
+
+    </p>
+
+  </div>
+
+</footer>
+
+<script src="js/config.js"></script>
+
+<script src="js/cart.js"></script>
+
+<script src="js/app.js"></script>
+
+<!-- =========================
+開店準備中
+========================= -->
+<div id="openingOverlay">
+
+  <div class="opening-box">
+
+    <h2>
+      開店準備中
+    </h2>
+
+    <p>
+      結びサイトへ
+      お越しいただきありがとうございます。
+    </p>
+
+    <p>
+      ８／２４ ＯＰＥＮ決定
+    </p>
+
+    <p>
+      もうしばらくお待ちください。
+    </p>
+
+  </div>
+
+</div>
+
+<script>
+
+// =========================
+// 開店準備中オーバーレイ
+// =========================
+
+// オープン日時（日本時間）
+const OPEN_DATE =
+  new Date("2026-08-24T08:00:00+09:00");
+
+
+const overlay =
+  document.getElementById(
+    "openingOverlay"
+  );
+
+
+if(overlay){
+
+  if(new Date() >= OPEN_DATE){
+
+    // オープン後は削除
+    overlay.remove();
+
+  }else{
+
+    // オープン前は表示
+    overlay.style.display = "flex";
+
+  }
+
+}
+</script>
+
+</html>

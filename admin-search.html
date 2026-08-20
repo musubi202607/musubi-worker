@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>予約検索</title>
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+}
+
+th, td{
+  border:1px solid #ddd;
+  padding:10px;
+}
+
+th{
+  background:#f5f5f5;
+}
+
+.search-box{
+  margin:20px 0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+<div class="container header-inner">
+<h1>予約検索</h1>
+</div>
+</header>
+
+<div class="container">
+
+<a href="admin.html" class="back-btn">← 管理画面へ戻る</a>
+
+<div class="search-box">
+
+<input type="text" id="keyword" placeholder="予約番号・氏名・電話番号">
+<button onclick="searchData()">検索</button>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>予約番号</th>
+<th>利用日</th>
+<th>氏名</th>
+<th>電話番号</th>
+<th>人数</th>
+<th>状態</th>
+<th>会計</th>
+<th>詳細</th>
+</tr>
+</thead>
+
+<tbody id="result"></tbody>
+
+</table>
+
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/admin-auth.js"></script>
+
+<script>
+
+let reservationData = [];
+
+async function loadReservations(){
+
+  const res = await fetch(API_URL + "/api/reservations");
+  reservationData = await res.json();
+
+  render(reservationData);
+}
+
+function searchData(){
+
+  const keyword = document.getElementById("keyword").value.trim();
+
+  if(!keyword){
+    render(reservationData);
+    return;
+  }
+
+  const filtered = reservationData.filter(r => {
+
+    return (
+      (r.reservationNo || "").includes(keyword) ||
+      (r.customerName || "").includes(keyword) ||
+      (r.tel || "").includes(keyword)
+    );
+
+  });
+
+  render(filtered);
+}
+
+function render(data){
+
+  let html = "";
+
+  data.forEach(row => {
+
+    html += `
+      <tr>
+
+        <td>${row.reservationNo}</td>
+        <td>${row.useDate}</td>
+        <td>${row.customerName}</td>
+        <td>${row.tel}</td>
+        <td>${row.people}</td>
+        <td>${row.status}</td>
+        <td>${row.paid}</td>
+
+        <td>
+          <a href="admin-reservation-detail.html?no=${row.reservationNo}">
+            開く
+          </a>
+        </td>
+
+      </tr>
+    `;
+  });
+
+  document.getElementById("result").innerHTML = html;
+}
+
+loadReservations();
+
+</script>
+
+</body>
+</html>

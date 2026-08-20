@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+  <title>カート</title>
+
+  <link
+    rel="stylesheet"
+    href="css/style.css">
+
+</head>
+
+<body>
+
+<header>
+
+  <div class="container">
+
+    <h1>おにぎり注文カート</h1>
+
+  </div>
+
+</header>
+
+<section class="container">
+
+  <div id="cartItems"></div>
+
+  <div class="cart-buttons">
+
+    <a href="index.html">
+
+      <button>
+
+        戻る
+
+      </button>
+
+    </a>
+
+    <button
+      onclick="clearCart()">
+
+      カートを空にする
+
+    </button>
+
+    <button
+      onclick="goOrder()">
+
+      注文確認へ進む
+
+    </button>
+
+  </div>
+
+</section>
+
+<script src="js/config.js"></script>
+<script src="js/cart.js"></script>
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+  displayCart();
+});
+</script>
+
+</body>
+</html>
