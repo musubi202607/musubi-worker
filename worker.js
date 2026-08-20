@@ -2011,7 +2011,7 @@ async function handleDashboard(request, env){
 }
 
 // =========================
-// 注文管理
+// 注文管理（D1版）
 // =========================
 async function handleOrders(request, env) {
 
@@ -2033,8 +2033,9 @@ async function handleOrders(request, env) {
 
   }
 
+
   // =========================
-  // メソッドチェック
+  // GETのみ
   // =========================
   if (request.method !== "GET") {
 
@@ -2048,78 +2049,214 @@ async function handleOrders(request, env) {
 
   }
 
+
   const url =
     new URL(request.url);
 
+
   const type =
-    url.searchParams.get("type");
+    url.searchParams.get("type") || "";
+
 
   const start =
     url.searchParams.get("start") || "";
 
+
   const end =
     url.searchParams.get("end") || "";
-  let res;
+
+
+  let table = "";
+
+
+  // =========================
+  // テーブル判定
+  // =========================
+  switch(type) {
+
+    case "onigiri":
+    case "drink":
+      table = "onigiri_orders";
+      break;
+
+
+    case "bbq":
+      table = "bbq_reservations";
+      break;
+
+
+    case "bbq-option":
+      table = "bbq_option_orders";
+      break;
+
+
+    case "kitchen":
+      table = "kitchen_orders";
+      break;
+
+
+    default:
+
+      return json({
+
+        success:false,
+
+        message:"Invalid order type"
+
+      },400);
+
+  }
+
 
   try {
 
-    res =
-      await fetch(
 
-      env.GAS_URL +
-      "?mode=orders" +
-      "&type=" +
-      encodeURIComponent(type || "") +
-      "&start=" +
-      encodeURIComponent(start) +
-      "&end=" +
-      encodeURIComponent(end)
+    let sql =
+      `SELECT * FROM ${table}`;
 
+
+    const params = [];
+
+
+    // =========================
+    // 期間検索
+    // =========================
+    if(start && end) {
+
+      sql +=
+        ` WHERE order_date BETWEEN ? AND ?`;
+
+      params.push(
+        start,
+        end
+      );
+
+    }
+
+
+    sql +=
+      ` ORDER BY id DESC`;
+
+
+    const result =
+      await env.DB
+        .prepare(sql)
+        .bind(...params)
+        .all();
+
+
+
+    // =========================
+    // 既存形式へ変換
+    // =========================
+    const orders =
+      result.results.map(row => {
+
+
+        return {
+
+          orderNo:
+            row.order_no ||
+            row.reservation_no ||
+            "",
+
+
+          orderDate:
+            row.order_date ||
+            "",
+
+
+          pickupTime:
+            row.pickup_time ||
+            row.use_date ||
+            "",
+
+
+          customerName:
+            row.customer_name ||
+            "",
+
+
+          customerTel:
+            row.customer_tel ||
+            "",
+
+
+          itemName:
+            row.item_name ||
+            row.plan ||
+            "",
+
+
+          qty:
+            row.quantity ||
+            row.people ||
+            0,
+
+
+          unitPrice:
+            row.unit_price ||
+            0,
+
+
+          amount:
+            row.amount ||
+            0,
+
+
+          memo:
+            row.memo ||
+            "",
+
+
+          status:
+            row.status ||
+            "",
+
+
+          paid:
+            row.paid ||
+            row.payment ||
+            ""
+
+        };
+
+
+      });
+
+
+
+    return json({
+
+      success:true,
+
+      orders
+
+    });
+
+
+
+  } catch(error) {
+
+
+    console.error(
+      "D1 orders error",
+      error
     );
 
-  } catch {
 
     return json({
 
-      success: false,
+      success:false,
 
-      message: "GAS fetch failed"
+      message:"D1 orders fetch failed",
 
-    }, 502);
+      error:error.message
 
-  }
+    },500);
 
-  let data;
-
-  try {
-
-    data =
-      await res.json();
-
-  } catch {
-
-    return json({
-
-      success: false,
-
-      message: "Invalid GAS response"
-
-    }, 502);
 
   }
-
-  const orders =
-    Array.isArray(data)
-      ? data
-      : data.orders || data.data || [];
-
-  return json({
-
-    success: true,
-
-    orders
-
-  });
 
 }
 
