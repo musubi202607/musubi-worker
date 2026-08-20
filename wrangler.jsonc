@@ -3,10 +3,6 @@
   "main": "worker.js",
   "compatibility_date": "2026-08-20",
 
-  "vars": {
-  "GAS_URL": "https://script.google.com/macros/s/AKfycbwl1q7Fmlpf9PYR-lSA45JtJzzPUVFPPqX6IbEtrzTqsBJpPPx8zzv0n4fWgnZzVzz_MQ/exec"
-  }
-  
   "assets": {
     "directory": "./public"
   },
