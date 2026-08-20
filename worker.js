@@ -778,240 +778,313 @@ async function handleCart(request, env) {
 
 }
 
+// =========================
+// おにぎり注文番号発番
+// =========================
+async function createOnigiriOrderNo(env) {
+
+  const row =
+    await env.DB
+      .prepare(`
+        SELECT
+          order_no
+        FROM
+          onigiri_orders
+        ORDER BY
+          id DESC
+        LIMIT 1
+      `)
+      .first();
+
+  // -------------------------
+  // 初回
+  // -------------------------
+  if (!row) {
+
+    return "ON000001";
+
+  }
+
+  const lastNo =
+    row.order_no;
+
+  if (
+    !lastNo ||
+    String(lastNo).indexOf("ON") !== 0
+  ) {
+
+    return "ON000001";
+
+  }
+
+  let num =
+    Number(
+      String(lastNo)
+        .replace("ON", "")
+    );
+
+  if (isNaN(num)) {
+
+    num = 0;
+
+  }
+
+  num++;
+
+  return (
+    "ON" +
+    String(num).padStart(6, "0")
+  );
+
+}
+// =========================
+// 注文登録
+// =========================
 async function handleOrder(request, env) {
+
   // =========================
-  // ① メソッドチェック
+  // メソッドチェック
   // =========================
   if (request.method !== "POST") {
-    return json(
-      { success: false, message: "Method Not Allowed" },
-      405
-    );
+
+    return json({
+
+      success: false,
+
+      message: "Method Not Allowed"
+
+    }, 405);
+
   }
 
   // =========================
-  // ② JSONパース（防御）
+  // JSON取得
   // =========================
   let body;
 
   try {
-    body = await request.json();
+
+    body =
+      await request.json();
+
   } catch {
-    return json(
-      { success: false, message: "Invalid JSON" },
-      400
-    );
+
+    return json({
+
+      success: false,
+
+      message: "Invalid JSON"
+
+    }, 400);
+
   }
 
   const {
+
     sessionId,
     customerName,
     customerTel,
     pickupTime = "",
     memo = ""
+
   } = body;
 
   // =========================
-  // ③ 必須チェック
+  // 必須チェック
   // =========================
   if (!sessionId) {
-    return json(
-      { success: false, message: "Missing sessionId" },
-      400
-    );
+
+    return json({
+
+      success: false,
+
+      message: "Missing sessionId"
+
+    }, 400);
+
   }
 
-  if (!customerName || !customerTel) {
-    return json(
-      { success: false, message: "Missing customer info" },
-      400
-    );
-  }
+  if (
+    !customerName ||
+    !customerTel
+  ) {
 
-  // =========================
-  // ④ カート取得
-  // =========================
-  const cart = await getCart(env, sessionId);
+    return json({
 
-  if (!Array.isArray(cart) || cart.length === 0) {
-    return json(
-      { success: false, message: "Cart empty" },
-      400
-    );
-  }
+      success: false,
 
-  // =========================
-  // ⑤ 商品取得（GAS）
-  // =========================
-  let productsRes;
+      message: "Missing customer info"
 
-  try {
-    productsRes = await fetch(
-      env.GAS_URL + "?mode=allProducts"
-    );
-  } catch {
-    return json(
-      { success: false, message: "Products fetch failed" },
-      502
-    );
-  }
+    }, 400);
 
-  if (!productsRes.ok) {
-    return json(
-      { success: false, message: "Products API error" },
-      502
-    );
-  }
-
-  let products;
-
-  try {
-    products = await productsRes.json();
-  } catch {
-    return json(
-      { success: false, message: "Invalid products response" },
-      502
-    );
   }
 
   // =========================
-  // ⑥ Map化（高速化）
+  // カート取得
   // =========================
-  const productMap = new Map(
-    products.map(p => [Number(p.id), p])
-  );
+  const cart =
+    await getCart(
+      env,
+      sessionId
+    );
+
+  if (
+    !Array.isArray(cart) ||
+    cart.length === 0
+  ) {
+
+    return json({
+
+      success: false,
+
+      message: "Cart empty"
+
+    }, 400);
+
+  }
 
   // =========================
-  // ⑦ 注文アイテム生成
+  // 商品取得（D1）
   // =========================
-  const missingItems = [];
+  const productResult =
+    await env.DB
+      .prepare(`
+        SELECT *
+        FROM products
+        WHERE status='販売中'
+      `)
+      .all();
 
-  const items = cart.map(item => {
-    const p = productMap.get(Number(item.id));
+  const products =
+    productResult.results || [];
 
-    if (!p) {
-      missingItems.push(item.id);
-      return null;
+  const productMap =
+    new Map(
+      products.map(p => [
+        Number(p.id),
+        p
+      ])
+    );
+
+  // =========================
+  // 注文番号生成
+  // =========================
+  const orderNo =
+    await createOnigiriOrderNo(env);
+
+  // =========================
+  // 注文日時
+  // =========================
+  const orderDate =
+    new Date()
+      .toLocaleString(
+        "ja-JP",
+        {
+          timeZone: "Asia/Tokyo"
+        }
+      );
+
+  // =========================
+  // 注文保存開始
+  // =========================
+  for (const item of cart) {
+
+    const product =
+      productMap.get(
+        Number(item.id)
+      );
+
+    if (!product) {
+
+      continue;
+
     }
 
-    return {
-      id: Number(p.id),
-      name: p.name,
-      price: Number(p.price),
-      qty: Number(item.qty)
-    };
-  }).filter(Boolean);
+    const qty =
+      Number(item.qty);
 
-  if (items.length === 0) {
-    return json(
-      {
-        success: false,
-        message: "No valid items"
-      },
-      400
-    );
-  }
+    const price =
+      Number(product.price);
 
-  if (missingItems.length > 0) {
-    return json(
-      {
-        success: false,
-        message: "Some products missing",
-        missingItems
-      },
-      409
-    );
-  }
+    const amount =
+      qty * price;
 
-  // =========================
-  // ⑧ 冪等性キー（重要）
-  // =========================
-  const idempotencyKey =
-    sessionId + ":" + Date.now();
+        // =========================
+    // D1へ保存
+    // =========================
+    await env.DB
+      .prepare(`
+        INSERT INTO onigiri_orders
+        (
+          order_no,
+          order_date,
+          pickup_time,
+          customer_name,
+          customer_tel,
+          item_name,
+          quantity,
+          unit_price,
+          amount,
+          memo,
+          status,
+          paid
+        )
+        VALUES
+        (
+          ?,?,?,?,?,?,?,?,?,?,?,?
+        )
+      `)
+      .bind(
 
-  // =========================
-  // ⑨ GASへ注文保存
-  // =========================
-  let gasRes;
-
-  try {
-    gasRes = await fetch(env.GAS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        mode: "saveOrder",
-
-        idempotencyKey,
-
+        orderNo,
+        orderDate,
+        pickupTime,
         customerName,
         customerTel,
-        pickupTime,
+        product.name,
+        qty,
+        price,
+        amount,
         memo,
+        "未",
+        "未"
 
-        items
-      })
-    });
-  } catch {
-    return json(
-      { success: false, message: "GAS request failed" },
-      502
-    );
-  }
+      )
+      .run();
 
-  if (!gasRes.ok) {
-    return json(
-      { success: false, message: "GAS error" },
-      502
-    );
-  }
-
-  let result;
-
-  try {
-    result = await gasRes.json();
-  } catch {
-    return json(
-      { success: false, message: "Invalid GAS response" },
-      502
-    );
   }
 
   // =========================
-  // ⑩ GAS側失敗処理
-  // =========================
-  if (!result?.success) {
-    return json(
-      {
-        success: false,
-        message: "Order failed",
-        gas: result
-      },
-      500
-    );
-  }
-
-  // =========================
-  // ⑪ カート削除（成功時のみ）
+  // カート削除
   // =========================
   try {
-    await env.CART_KV.delete(sessionId);
-  } catch {
-    // 削除失敗は致命傷ではないので握りつぶす
+
+    await env.CART_KV.delete(
+      sessionId
+    );
+
+  } catch (e) {
+
+    console.error(
+      "Cart Delete Error:",
+      e
+    );
+
   }
 
   // =========================
-  // ⑫ 成功レスポンス統一
+  // 完了
   // =========================
   return json({
 
-    success:true,
+    success: true,
 
-    orderNo: result.orderNo
+    orderNo
 
   });
+
 }
+
 
 // =========================
 // おにぎり未会計
