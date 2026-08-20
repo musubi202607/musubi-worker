@@ -1,0 +1,28 @@
+{
+  "name": "musubi-next",
+  "main": "worker.js",
+  "compatibility_date": "2026-08-20",
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "musubi-db-next",
+      "database_id": "4a7b6d50-6567-4d6b-add5-cc2affc556f6"
+    }
+  ],
+
+  "kv_namespaces": [
+    {
+      "binding": "CART_KV",
+      "id": "6b338578e36446c68efeaf76569c28ce"
+    },
+    {
+      "binding": "ADMIN_SESSION",
+      "id": "3a1242b26fa643e6b116e56bff5b5c67"
+    },
+    {
+      "binding": "ADMIN_USERS",
+      "id": "e510a64a11484a30be6ad6efa1f708ef"
+    }
+  ]
+}
