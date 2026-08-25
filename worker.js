@@ -2720,7 +2720,7 @@ const bbq =
        OR paid != '会計済'
     ORDER BY id DESC
   `)
-  .all;
+  .all();
 
 
 
