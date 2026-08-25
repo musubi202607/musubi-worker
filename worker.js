@@ -2980,7 +2980,7 @@ Object.values(kitchenMap)
 
 
 // =========================
-// 管理者ログイン（KV方式 NEXT版）
+// 管理者ログイン（KV方式 musubi-next版）
 // =========================
 async function handleAdminLogin(request, env) {
 
@@ -3019,7 +3019,7 @@ async function handleAdminLogin(request, env) {
   // =========================
 
   const usersJson =
-    await env.MUSUBI_ADMIN_USERS_NEXT.get("users");
+    await env.ADMIN_USERS.get("users");
 
 
 
@@ -3091,7 +3091,7 @@ async function handleAdminLogin(request, env) {
 
 
 
-    await env.MUSUBI_ADMIN_USERS_NEXT.put(
+    await env.ADMIN_USERS.put(
       "users",
       JSON.stringify(users)
     );
@@ -3109,12 +3109,11 @@ async function handleAdminLogin(request, env) {
 
 
 
-
   // =========================
   // セッション保存
   // =========================
 
-  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
+  await env.ADMIN_SESSION.put(
 
     token,
 
@@ -3642,7 +3641,7 @@ async function handleAdminDeleteUser(request, env){
 }
 
 // =========================
-// 管理者認証（Ver1.1 NEXT版）
+// 管理者認証（musubi-next版）
 // =========================
 async function requireAdmin(request, env){
 
@@ -3669,7 +3668,7 @@ async function requireAdmin(request, env){
   // セッション取得
   // =========================
   const sessionJson =
-    await env.MUSUBI_ADMIN_SESSION_NEXT.get(token);
+    await env.ADMIN_SESSION.get(token);
 
 
 
@@ -3699,7 +3698,7 @@ async function requireAdmin(request, env){
     SESSION_EXPIRE
   ){
 
-    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(token);
+    await env.ADMIN_SESSION.delete(token);
 
     return null;
 
@@ -3711,7 +3710,7 @@ async function requireAdmin(request, env){
   // ユーザー状態確認
   // =========================
   const usersJson =
-    await env.MUSUBI_ADMIN_USERS_NEXT.get("users");
+    await env.ADMIN_USERS.get("users");
 
 
 
@@ -3730,7 +3729,7 @@ async function requireAdmin(request, env){
     user.enabled === false
   ){
 
-    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(token);
+    await env.ADMIN_SESSION.delete(token);
 
     return null;
 
@@ -3746,7 +3745,7 @@ async function requireAdmin(request, env){
 
 
 
-  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
+  await env.ADMIN_SESSION.put(
     token,
     JSON.stringify(session),
     {
