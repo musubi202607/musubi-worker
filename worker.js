@@ -5175,19 +5175,24 @@ function addKitchenOrder(data){
 }
 
 async function handleKitchenUnpaid(
-request,
-env
+  request,
+  env
 ){
 
-  const test =
+  const result =
     await env.DB
-    .prepare(
-      "SELECT COUNT(*) AS cnt FROM kitchen_orders"
-    )
-    .first();
+      .prepare(`
+        SELECT *
+        FROM kitchen_orders
+        ORDER BY id DESC
+      `)
+      .all();
 
 
-  return json(test);
+  return json({
+    count: result.results.length,
+    data: result.results
+  });
 
 }
 
