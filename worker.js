@@ -2980,7 +2980,7 @@ Object.values(kitchenMap)
 
 
 // =========================
-// 管理者ログイン（KV方式 NEXT版）
+// 管理者ログイン（KV方式）
 // =========================
 async function handleAdminLogin(request, env) {
 
@@ -2998,8 +2998,10 @@ async function handleAdminLogin(request, env) {
   }
 
 
+
   const body =
     await request.json();
+
 
 
   const id =
@@ -3012,10 +3014,15 @@ async function handleAdminLogin(request, env) {
 
 
   // =========================
-  // ユーザー取得
+  // KVからユーザー取得
+  // binding: ADMIN_USERS
   // =========================
+
   const usersJson =
-    await env.MUSUBI_ADMIN_USERS_NEXT.get("users");
+    await env.ADMIN_USERS.get(
+      "users"
+    );
+
 
 
   if(!usersJson){
@@ -3083,7 +3090,7 @@ async function handleAdminLogin(request, env) {
     delete user.password;
 
 
-    await env.MUSUBI_ADMIN_USERS_NEXT.put(
+    await env.ADMIN_USERS.put(
 
       "users",
 
@@ -3106,9 +3113,10 @@ async function handleAdminLogin(request, env) {
 
   // =========================
   // セッション保存
+  // binding: ADMIN_SESSION
   // =========================
 
-  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
+  await env.ADMIN_SESSION.put(
 
     token,
 
@@ -3636,7 +3644,7 @@ async function handleAdminDeleteUser(request, env){
 }
 
 // =========================
-// 管理者認証 NEXT版
+// 管理者認証
 // =========================
 async function requireAdmin(request, env){
 
@@ -3645,6 +3653,7 @@ async function requireAdmin(request, env){
     request.headers.get(
       "Authorization"
     );
+
 
 
   if(
@@ -3671,12 +3680,14 @@ async function requireAdmin(request, env){
 
   // =========================
   // セッション取得
+  // binding: ADMIN_SESSION
   // =========================
 
   const sessionJson =
-    await env.MUSUBI_ADMIN_SESSION_NEXT.get(
+    await env.ADMIN_SESSION.get(
       token
     );
+
 
 
   if(!sessionJson){
@@ -3715,7 +3726,7 @@ async function requireAdmin(request, env){
 
   ){
 
-    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(
+    await env.ADMIN_SESSION.delete(
       token
     );
 
@@ -3728,12 +3739,14 @@ async function requireAdmin(request, env){
 
   // =========================
   // ユーザー確認
+  // binding: ADMIN_USERS
   // =========================
 
   const usersJson =
-    await env.MUSUBI_ADMIN_USERS_NEXT.get(
+    await env.ADMIN_USERS.get(
       "users"
     );
+
 
 
   const users =
@@ -3756,7 +3769,7 @@ async function requireAdmin(request, env){
 
   ){
 
-    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(
+    await env.ADMIN_SESSION.delete(
       token
     );
 
@@ -3768,7 +3781,7 @@ async function requireAdmin(request, env){
 
 
   // =========================
-  // スライディング更新
+  // セッション更新
   // =========================
 
   session.loginTime =
@@ -3776,7 +3789,7 @@ async function requireAdmin(request, env){
 
 
 
-  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
+  await env.ADMIN_SESSION.put(
 
     token,
 
