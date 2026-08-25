@@ -2,7 +2,7 @@
 // API
 // =========================
 const API_URL =
-  "https://musubi-online.musubi-202607.workers.dev";
+  "https://musubi-next.musubi-202607.workers.dev";
 
 
 // =========================
