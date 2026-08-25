@@ -24,7 +24,7 @@ async fetch(request, env) {
   if(path==="/api/kitchen/unpaid") return handleKitchenUnpaid(request,env);
   if(path==="/api/kitchen/paid") return handleKitchenPaid(request,env);
   if(path==="/api/kitchen/sales" && request.method==="POST") return handleKitchenSales(request,env);
-
+   
   // 会計
   if(path.startsWith("/api/unpaid")) return handleUnpaid(request,env);
   if(path.startsWith("/api/onigiri/paid")) return handleOnigiriPaid(request,env);
@@ -4649,6 +4649,153 @@ async function createKitchenOrderNo(env){
 
 
   return prefix + "-" + serial;
+
+}
+
+// =========================
+// キッチンカー注文登録
+// =========================
+async function handleKitchenOrder(request, env){
+
+  if(request.method !== "POST"){
+
+    return json(
+      {
+        success:false,
+        message:"Method Not Allowed"
+      },
+      405
+    );
+
+  }
+
+
+  let body;
+
+  try{
+
+    body =
+      await request.json();
+
+  }catch{
+
+    return json(
+      {
+        success:false,
+        message:"Invalid JSON"
+      },
+      400
+    );
+
+  }
+
+
+  const {
+
+    carNumber = "",
+    paymentStatus = "受付",
+    orders = []
+
+  } = body;
+
+
+
+  if(
+    !Array.isArray(orders) ||
+    orders.length === 0
+  ){
+
+    return json(
+      {
+        success:false,
+        message:"商品がありません"
+      },
+      400
+    );
+
+  }
+
+
+
+  // =========================
+  // 注文番号
+  // =========================
+  const orderNo =
+    await createKitchenOrderNo(env);
+
+
+
+  const orderDate =
+    new Date()
+      .toLocaleString(
+        "ja-JP",
+        {
+          timeZone:"Asia/Tokyo"
+        }
+      );
+
+
+
+  const payment =
+    paymentStatus === "会計済"
+    ?
+    "会計済"
+    :
+    "未";
+
+
+
+  // =========================
+  // D1保存
+  // =========================
+  for(const item of orders){
+
+
+    await env.DB
+      .prepare(`
+        INSERT INTO kitchen_orders
+        (
+          order_no,
+          order_date,
+          vehicle_no,
+          item_name,
+          quantity,
+          unit_price,
+          amount,
+          payment,
+          status
+        )
+        VALUES
+        (?,?,?,?,?,?,?,?,?)
+      `)
+      .bind(
+
+        orderNo,
+        orderDate,
+        carNumber,
+        item.productName || "",
+        Number(item.qty || 0),
+        Number(item.price || 0),
+        Number(item.amount || 0),
+        payment,
+        "未"
+
+      )
+      .run();
+
+
+  }
+
+
+
+  return json({
+
+    success:true,
+
+    orderNo
+
+  });
+
 
 }
 
