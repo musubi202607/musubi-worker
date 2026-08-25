@@ -3187,7 +3187,7 @@ async function handleAdminUsers(request, env){
   }
 
   const usersJson =
-    await env.ADMIN_KV.get("users");
+    await env.ADMIN_USERS.get("users");
 
   const users =
     JSON.parse(
@@ -3319,7 +3319,7 @@ async function handleAdminAddUser(request, env){
   // ユーザー取得
   // =========================
   const usersJson =
-    await env.ADMIN_KV.get("users");
+    await env.ADMIN_USERS.get("users");
 
   const users =
     JSON.parse(
@@ -3357,7 +3357,7 @@ async function handleAdminAddUser(request, env){
 
   };
 
-  await env.ADMIN_KV.put(
+  await env.ADMIN_USERS.put(
 
     "users",
 
@@ -3436,7 +3436,7 @@ async function handleAdminUpdateUser(request, env){
   }
 
   const usersJson =
-    await env.ADMIN_KV.get("users");
+    await env.ADMIN_USERS.get("users");
 
   const users =
     JSON.parse(
@@ -3483,7 +3483,7 @@ async function handleAdminUpdateUser(request, env){
   users[id] = user;
 
 
-  await env.ADMIN_KV.put(
+  await env.ADMIN_USERS.put(
 
     "users",
 
@@ -3574,7 +3574,7 @@ async function handleAdminDeleteUser(request, env){
 
 
   const usersJson =
-    await env.ADMIN_KV.get("users");
+    await env.ADMIN_USERS.get("users");
 
 
   const users =
@@ -3624,7 +3624,7 @@ async function handleAdminDeleteUser(request, env){
 
 
 
-  await env.ADMIN_KV.put(
+  await env.ADMIN_USERS.put(
 
     "users",
 
@@ -4501,126 +4501,6 @@ async function handleStoreBusinessCalendar(request, env){
 
 }
 
-function renderCalendar() {
-
-  const target =
-    document.getElementById("calendar");
-
-  if (!target) return;
-
-  target.innerHTML = "";
-
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
-
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-
-  const startDay = firstDay.getDay();
-  const totalDays = lastDay.getDate();
-
-  target.innerHTML += `
-    <div class="calendar-header">
-      <button onclick="prevMonth()">←</button>
-      <h2>${year}年 ${month + 1}月</h2>
-      <button onclick="nextMonth()">→</button>
-    </div>
-
-    <div class="calendar-grid">
-
-      <div class="calendar-week">日</div>
-      <div class="calendar-week">月</div>
-      <div class="calendar-week">火</div>
-      <div class="calendar-week">水</div>
-      <div class="calendar-week">木</div>
-      <div class="calendar-week">金</div>
-      <div class="calendar-week">土</div>
-  `;
-
-  for (let i = 0; i < startDay; i++) {
-    target.innerHTML += "<div></div>";
-  }
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  for (let day = 1; day <= totalDays; day++) {
-
-    const dateObj = new Date(year, month, day);
-    const dateStr = formatDate(dateObj);
-
-    const item =
-      calendarData.find(
-        d => d.date === dateStr
-      );
-
-    if (!item) {
-
-      target.innerHTML += "<div></div>";
-      continue;
-
-    }
-
-    let className = "calendar-day";
-    let disabled = "";
-    let statusText = "";
-
-    // 過去日は受付終了
-    if (dateObj < today) {
-
-      className += " closed";
-      disabled = "disabled";
-      statusText = "受付終了";
-
-    }
-
-    // 予約可能
-    else if (item.status === "○" && item.limit > 0) {
-
-      className += " available";
-      statusText = `あと${item.limit}組`;
-
-    }
-
-    // 予約不可
-    else {
-
-      className += " closed";
-      disabled = "disabled";
-      statusText = "予約不可";
-
-    }
-
-    // 選択済み
-    if (reservation.date === dateStr) {
-
-      className += " selected";
-
-    }
-
-    target.innerHTML += `
-      <button
-        class="${className}"
-        ${disabled}
-        onclick="selectDate('${dateStr}', this)"
-      >
-
-        <div class="calendar-date">
-          ${day}
-        </div>
-
-        <div class="calendar-status">
-          ${statusText}
-        </div>
-
-      </button>
-    `;
-
-  }
-
-  target.innerHTML += "</div>";
-
-}
 
 // =========================
 // 店舗営業日管理
