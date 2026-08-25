@@ -1742,62 +1742,174 @@ async function handleBBQFullDetail(
 // BBQ追加注文
 // =========================
 async function handleBBQAddOrder(request, env) {
-  
-  
-  // POST以外は拒否
+
+
+  // =========================
+  // Method確認
+  // =========================
   if (request.method !== "POST") {
-    return json({
-      success: false,
-      message: "Method Not Allowed"
-    }, 405);
+
+    return json(
+      {
+        success:false,
+        message:"Method Not Allowed"
+      },
+      405
+    );
+
   }
+
 
   try {
 
-    // フロントから受信
-    const body = await request.json();
 
-    // GASへ転送
-    const res = await fetch(env.GAS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
+    const body =
+      await request.json();
 
-        mode: "saveBbqOptionOrder",
 
-        reservationNo: body.reservationNo,
 
-        useDate: body.useDate,
+    const {
 
-        customerName: body.customerName,
+      reservationNo,
+      useDate,
+      customerName,
+      memo = "",
+      items = []
 
-        customerTel: body.customerTel,
+    } = body;
 
-        memo: body.memo || "",
 
-        items: body.items || []
 
-      })
-    });
+    // =========================
+    // 必須確認
+    // =========================
+    if(
+      !reservationNo ||
+      !Array.isArray(items) ||
+      items.length === 0
+    ){
 
-    // GASのレスポンス取得
-    const result = await res.json();
+      return json(
+        {
+          success:false,
+          message:"Invalid data"
+        },
+        400
+      );
 
-    // フロントへ返す
-    return json(result);
+    }
 
-  } catch (e) {
 
-    console.error("handleBBQAddOrder Error:", e);
+
+    // =========================
+    // 受付日時
+    // =========================
+    const orderDate =
+      new Date()
+        .toLocaleString(
+          "ja-JP",
+          {
+            timeZone:"Asia/Tokyo"
+          }
+        );
+
+
+
+    // =========================
+    // D1保存
+    // =========================
+    for(
+      const item of items
+    ){
+
+
+      const quantity =
+        Number(item.quantity || item.qty || 0);
+
+
+      const unitPrice =
+        Number(
+          item.unit_price ||
+          item.price ||
+          0
+        );
+
+
+      const amount =
+        quantity *
+        unitPrice;
+
+
+
+      await env.DB
+        .prepare(`
+          INSERT INTO bbq_option_orders
+          (
+            reservation_no,
+            order_date,
+            use_date,
+            customer_name,
+            item_name,
+            quantity,
+            unit_price,
+            amount,
+            memo,
+            status,
+            paid
+          )
+          VALUES
+          (?,?,?,?,?,?,?,?,?,?,?)
+        `)
+        .bind(
+
+          reservationNo,
+          orderDate,
+          useDate,
+          customerName,
+          item.name,
+          quantity,
+          unitPrice,
+          amount,
+          memo,
+          "未",
+          "未"
+
+        )
+        .run();
+
+
+    }
+
+
 
     return json({
-      success: false,
-      message: e.message
-    }, 500);
+
+      success:true
+
+    });
+
+
+
+  } catch(e){
+
+
+    console.error(
+      "handleBBQAddOrder Error:",
+      e
+    );
+
+
+    return json(
+      {
+        success:false,
+        message:e.message
+      },
+      500
+    );
+
 
   }
+
 
 }
 
