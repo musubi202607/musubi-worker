@@ -5179,20 +5179,40 @@ async function handleKitchenUnpaid(
   env
 ){
 
-  const result =
-    await env.DB
-      .prepare(`
-        SELECT *
-        FROM kitchen_orders
-        ORDER BY id DESC
-      `)
-      .all();
+  try{
+
+    const result =
+      await env.DB
+        .prepare(`
+          SELECT *
+          FROM kitchen_orders
+          ORDER BY id DESC
+        `)
+        .all();
 
 
-  return json({
-    count: result.results.length,
-    data: result.results
-  });
+    return json(
+      result.results || []
+    );
+
+
+  }catch(e){
+
+    console.error(
+      "handleKitchenUnpaid error",
+      e
+    );
+
+
+    return json(
+      {
+        success:false,
+        message:e.message
+      },
+      500
+    );
+
+  }
 
 }
 
