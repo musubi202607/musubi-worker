@@ -2978,8 +2978,9 @@ Object.values(kitchenMap)
 
 }
 
+
 // =========================
-// 管理者ログイン（KV方式）
+// 管理者ログイン（KV方式 NEXT版）
 // =========================
 async function handleAdminLogin(request, env) {
 
@@ -2997,6 +2998,7 @@ async function handleAdminLogin(request, env) {
   }
 
 
+
   const body =
     await request.json();
 
@@ -3004,6 +3006,7 @@ async function handleAdminLogin(request, env) {
 
   const id =
     body.id;
+
 
 
   const password =
@@ -3016,7 +3019,8 @@ async function handleAdminLogin(request, env) {
   // =========================
 
   const usersJson =
-    await env.ADMIN_KV.get("users");
+    await env.MUSUBI_ADMIN_USERS_NEXT.get("users");
+
 
 
   if(!usersJson){
@@ -3032,6 +3036,7 @@ async function handleAdminLogin(request, env) {
   }
 
 
+
   const users =
     JSON.parse(usersJson);
 
@@ -3043,49 +3048,56 @@ async function handleAdminLogin(request, env) {
 
 
   // =========================
-// ID・パスワード確認
-// =========================
+  // ID・パスワード確認
+  // =========================
 
-const passwordHash =
-  await sha256(password);
-
-
-// 旧形式(password)
-// 新形式(passwordHash)
-// 両方対応
-if(
-
-  !user ||
-
-  (
-    user.password !== password &&
-    user.passwordHash !== passwordHash
-  )
-
-){
-
-  return json({
-
-    success:false
-
-  });
-
-}
+  const passwordHash =
+    await sha256(password);
 
 
-// =========================
-// 古い平文パスワード削除
-// =========================
-if(user.password){
+
+  // 旧形式(password)
+  // 新形式(passwordHash)
+  // 両方対応
+
+  if(
+
+    !user ||
+
+    (
+      user.password !== password &&
+      user.passwordHash !== passwordHash
+    )
+
+  ){
+
+    return json({
+
+      success:false
+
+    });
+
+  }
+
+
+
+  // =========================
+  // 古い平文パスワード削除
+  // =========================
+
+  if(user.password){
 
     delete user.password;
 
-    await env.ADMIN_KV.put(
+
+
+    await env.MUSUBI_ADMIN_USERS_NEXT.put(
       "users",
       JSON.stringify(users)
     );
 
   }
+
 
 
   // =========================
@@ -3094,31 +3106,40 @@ if(user.password){
 
   const token =
     crypto.randomUUID();
-    // =========================
-    // セッション保存
-    // =========================
-    await env.ADMIN_SESSION.put(
 
-      token,
 
-      JSON.stringify({
 
-        id:id,
 
-        name:user.name,
+  // =========================
+  // セッション保存
+  // =========================
 
-        role:user.role,
+  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
 
-        loginTime:Date.now()
+    token,
 
-      }),
+    JSON.stringify({
 
-      {
-        expirationTtl:
-          60 * 60 * 24 * 7
-      }
+      id:id,
 
-    );
+      name:user.name,
+
+      role:user.role,
+
+      loginTime:Date.now()
+
+    }),
+
+    {
+
+      expirationTtl:
+        60 * 60 * 24 * 7
+
+    }
+
+  );
+
+
 
   return json({
 
@@ -3138,7 +3159,7 @@ if(user.password){
 
   });
 
- 
+
 }
 
 
@@ -3621,38 +3642,54 @@ async function handleAdminDeleteUser(request, env){
 }
 
 // =========================
-// 管理者認証（Ver1.1）
+// 管理者認証（Ver1.1 NEXT版）
 // =========================
 async function requireAdmin(request, env){
 
   const auth =
     request.headers.get("Authorization");
 
+
   if(
     !auth ||
     !auth.startsWith("Bearer ")
   ){
+
     return null;
+
   }
+
 
   const token =
     auth.replace("Bearer ","");
+
+
 
   // =========================
   // セッション取得
   // =========================
   const sessionJson =
-    await env.ADMIN_SESSION.get(token);
+    await env.MUSUBI_ADMIN_SESSION_NEXT.get(token);
+
+
 
   if(!sessionJson){
+
     return null;
+
   }
+
+
 
   const session =
     JSON.parse(sessionJson);
 
+
+
   const SESSION_EXPIRE =
     7 * 24 * 60 * 60 * 1000;
+
+
 
   // =========================
   // 有効期限確認
@@ -3662,34 +3699,44 @@ async function requireAdmin(request, env){
     SESSION_EXPIRE
   ){
 
-    await env.ADMIN_SESSION.delete(token);
+    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(token);
 
     return null;
 
   }
 
+
+
   // =========================
   // ユーザー状態確認
   // =========================
   const usersJson =
-    await env.ADMIN_KV.get("users");
+    await env.MUSUBI_ADMIN_USERS_NEXT.get("users");
+
+
 
   const users =
     JSON.parse(usersJson || "{}");
 
+
+
   const user =
     users[session.id];
+
+
 
   if(
     !user ||
     user.enabled === false
   ){
 
-    await env.ADMIN_SESSION.delete(token);
+    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(token);
 
     return null;
 
   }
+
+
 
   // =========================
   // スライディングセッション
@@ -3697,24 +3744,31 @@ async function requireAdmin(request, env){
   session.loginTime =
     Date.now();
 
-   await env.ADMIN_SESSION.put(
+
+
+  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
     token,
     JSON.stringify(session),
     {
       expirationTtl:
-      60 * 60 * 24 * 7
+        60 * 60 * 24 * 7
     }
-   );
+  );
 
-  return{
+
+
+  return {
 
     token,
 
-    id:session.id,
+    id:
+      session.id,
 
-    name:user.name,
+    name:
+      user.name,
 
-    role:user.role
+    role:
+      user.role
 
   };
 
