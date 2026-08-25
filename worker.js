@@ -1738,34 +1738,23 @@ async function handleBBQFullDetail(
 
 }
 
-// =========================
-// BBQ追加注文
-// =========================
 async function handleBBQAddOrder(request, env) {
 
+  if(request.method !== "POST"){
 
-  // =========================
-  // Method確認
-  // =========================
-  if (request.method !== "POST") {
-
-    return json(
-      {
-        success:false,
-        message:"Method Not Allowed"
-      },
-      405
-    );
+    return json({
+      success:false,
+      message:"Method Not Allowed"
+    },405);
 
   }
 
 
-  try {
+  try{
 
 
     const body =
       await request.json();
-
 
 
     const {
@@ -1773,6 +1762,7 @@ async function handleBBQAddOrder(request, env) {
       reservationNo,
       useDate,
       customerName,
+      customerTel = "",
       memo = "",
       items = []
 
@@ -1780,102 +1770,87 @@ async function handleBBQAddOrder(request, env) {
 
 
 
-    // =========================
-    // 必須確認
-    // =========================
     if(
       !reservationNo ||
-      !Array.isArray(items) ||
-      items.length === 0
+      !items.length
     ){
 
-      return json(
-        {
-          success:false,
-          message:"Invalid data"
-        },
-        400
-      );
+      return json({
+
+        success:false,
+        message:"Missing data"
+
+      },400);
 
     }
 
 
 
-    // =========================
-    // 受付日時
-    // =========================
     const orderDate =
       new Date()
-        .toLocaleString(
-          "ja-JP",
-          {
-            timeZone:"Asia/Tokyo"
-          }
-        );
+      .toLocaleString(
+        "ja-JP",
+        {
+          timeZone:"Asia/Tokyo"
+        }
+      );
 
 
 
-    // =========================
-    // D1保存
-    // =========================
-    for(
-      const item of items
-    ){
-
-
-      const quantity =
-        Number(item.quantity || item.qty || 0);
-
-
-      const unitPrice =
-        Number(
-          item.unit_price ||
-          item.price ||
-          0
-        );
+    for(const item of items){
 
 
       const amount =
-        quantity *
-        unitPrice;
+        Number(item.price) *
+        Number(item.qty);
 
 
 
       await env.DB
-        .prepare(`
-          INSERT INTO bbq_option_orders
-          (
-            reservation_no,
-            order_date,
-            use_date,
-            customer_name,
-            item_name,
-            quantity,
-            unit_price,
-            amount,
-            memo,
-            status,
-            paid
-          )
-          VALUES
-          (?,?,?,?,?,?,?,?,?,?,?)
-        `)
-        .bind(
-
-          reservationNo,
-          orderDate,
-          useDate,
-          customerName,
-          item.name,
+      .prepare(`
+        INSERT INTO bbq_option_orders
+        (
+          reservation_no,
+          order_date,
+          use_date,
+          customer_name,
+          item_name,
           quantity,
-          unitPrice,
+          unit_price,
           amount,
           memo,
-          "未",
-          "未"
-
+          status,
+          paid
         )
-        .run();
+        VALUES
+        (?,?,?,?,?,?,?,?,?,?,?)
+      `)
+      .bind(
+
+        reservationNo,
+
+        orderDate,
+
+        useDate,
+
+        customerName,
+
+        item.name,
+
+        Number(item.qty),
+
+        Number(item.price),
+
+        amount,
+
+        memo,
+
+        "未",
+
+        "未"
+
+      )
+      .run();
 
 
     }
@@ -1890,7 +1865,7 @@ async function handleBBQAddOrder(request, env) {
 
 
 
-  } catch(e){
+  }catch(e){
 
 
     console.error(
@@ -1899,13 +1874,13 @@ async function handleBBQAddOrder(request, env) {
     );
 
 
-    return json(
-      {
-        success:false,
-        message:e.message
-      },
-      500
-    );
+    return json({
+
+      success:false,
+
+      message:e.message
+
+    },500);
 
 
   }
@@ -4618,6 +4593,62 @@ async function handleSalesCSV(request, env){
     }
   );
 
+
+}
+
+// =========================
+// キッチンカー注文番号生成
+// KYYYYMMDD-001
+// =========================
+async function createKitchenOrderNo(env){
+
+  const now =
+    new Date()
+      .toLocaleString(
+        "ja-JP",
+        {
+          timeZone:"Asia/Tokyo"
+        }
+      );
+
+
+  const ymd =
+    new Date()
+      .toLocaleDateString(
+        "ja-JP",
+        {
+          timeZone:"Asia/Tokyo",
+          year:"numeric",
+          month:"2-digit",
+          day:"2-digit"
+        }
+      )
+      .replaceAll("/","");
+
+
+  const prefix =
+    "K" + ymd;
+
+
+  const result =
+    await env.DB
+      .prepare(`
+        SELECT COUNT(*) AS cnt
+        FROM kitchen_orders
+        WHERE order_no LIKE ?
+      `)
+      .bind(prefix + "%")
+      .first();
+
+
+  const serial =
+    String(
+      Number(result.cnt || 0) + 1
+    )
+    .padStart(3,"0");
+
+
+  return prefix + "-" + serial;
 
 }
 
