@@ -4917,33 +4917,46 @@ async function handleKitchenUnpaid(
   env
 ){
 
-  const res =
-    await fetch(
-      env.GAS_URL,
-      {
+  try{
 
-        method:"POST",
+    const result =
+      await env.DB
+      .prepare(`
+        SELECT *
+        FROM kitchen_orders
+        WHERE payment != '会計済'
+        ORDER BY id DESC
+      `)
+      .all();
 
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
 
-        body:
-        JSON.stringify({
+    return json({
 
-          mode:
-          "getKitchenUnpaid"
+      success:true,
 
-        })
+      orders:
+        result.results || []
 
-      }
+    });
+
+
+  }catch(e){
+
+    console.error(
+      "handleKitchenUnpaid Error",
+      e
     );
 
 
-  return json(
-    await res.json()
-  );
+    return json({
+
+      success:false,
+
+      message:e.message
+
+    },500);
+
+  }
 
 }
 
@@ -4955,63 +4968,73 @@ async function handleKitchenPaid(
   env
 ){
 
+  if(request.method !== "POST"){
+
+    return json({
+
+      success:false,
+      message:"Method Error"
+
+    },405);
+
+  }
+
+
   const body =
     await request.json();
 
 
+  if(!body.orderNo){
 
-  const res =
-    await fetch(
+    return json({
 
-      env.GAS_URL,
+      success:false,
+      message:"Missing orderNo"
 
-      {
+    },400);
 
-        method:"POST",
-
-        headers:{
-          "Content-Type":
-          "application/json"
-        },
+  }
 
 
-        body:
+  try{
 
-        JSON.stringify({
 
-          mode:
-          "updateKitchenPaid",
+    await env.DB
+    .prepare(`
+      UPDATE kitchen_orders
+      SET payment='会計済'
+      WHERE order_no=?
+    `)
+    .bind(
+      body.orderNo
+    )
+    .run();
 
-          orderNo:
-          body.orderNo
 
-        })
 
-      }
+    return json({
 
+      success:true
+
+    });
+
+
+  }catch(e){
+
+    console.error(
+      e
     );
 
 
-  return new Response(
+    return json({
 
-JSON.stringify(
- await res.json()
-),
+      success:false,
 
-{
+      message:e.message
 
-headers:{
+    },500);
 
-"Content-Type":
-"application/json",
-
-...corsHeaders()
-
-}
-
-}
-
-);
+  }
 
 }
 
@@ -5044,10 +5067,7 @@ message:"Unauthorized"
 }
 
 
-
-if(
-request.method !== "POST"
-){
+if(request.method !== "POST"){
 
 return json({
 
@@ -5066,67 +5086,65 @@ await request.json();
 
 
 
-const res =
-await fetch(
+try{
 
-env.GAS_URL,
 
-{
+const result =
+await env.DB
+.prepare(`
+SELECT
+ order_date,
+ order_no,
+ item_name,
+ quantity,
+ unit_price,
+ amount
+FROM kitchen_orders
+WHERE payment='会計済'
+AND order_date >= ?
+AND order_date <= ?
+ORDER BY order_date DESC
+`)
+.bind(
 
-method:"POST",
-
-headers:{
-
-"Content-Type":
-"application/json"
-
-},
-
-body:
-
-JSON.stringify({
-
-mode:
-"getKitchenSales",
-
-startDate:
 body.startDate || "",
 
-endDate:
 body.endDate || ""
 
-})
+)
+.all();
 
-}
 
+
+return json({
+
+success:true,
+
+sales:
+result.results || []
+
+});
+
+
+}catch(e){
+
+
+console.error(
+"handleKitchenSales Error",
+e
 );
 
 
+return json({
 
-const text =
-await res.text();
+success:false,
 
+message:e.message
 
+},500);
 
-return new Response(
-
-text,
-
-{
-
-headers:{
-
-"Content-Type":
-"application/json",
-
-...corsHeaders()
 
 }
-
-}
-
-);
-
 
 }
 
