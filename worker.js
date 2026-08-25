@@ -4921,40 +4921,35 @@ async function handleKitchenUnpaid(
 
     const result =
       await env.DB
-      .prepare(`
-        SELECT *
-        FROM kitchen_orders
-        WHERE payment != '会計済'
-        ORDER BY id DESC
-      `)
-      .all();
+        .prepare(`
+          SELECT *
+          FROM kitchen_orders
+          WHERE payment != '会計済'
+          ORDER BY id DESC
+        `)
+        .all();
 
 
-    return json({
-
-      success:true,
-
-      orders:
-        result.results || []
-
-    });
+    return json(
+      result.results || []
+    );
 
 
   }catch(e){
 
     console.error(
-      "handleKitchenUnpaid Error",
+      "handleKitchenUnpaid error",
       e
     );
 
 
-    return json({
-
-      success:false,
-
-      message:e.message
-
-    },500);
+    return json(
+      {
+        success:false,
+        message:e.message
+      },
+      500
+    );
 
   }
 
