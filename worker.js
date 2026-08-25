@@ -2595,108 +2595,389 @@ async function handleOrders(request, env) {
 
 // =========================
 // 会計待ち一覧
+// D1版
 // =========================
 async function handlePaymentWaiting(request, env) {
 
-  const admin = await requireAdmin(request, env);
+  const admin =
+    await requireAdmin(
+      request,
+      env
+    );
+
 
   if(!admin){
+
     return json({
+
       success:false,
+
       message:"Unauthorized"
+
     },401);
+
   }
-
-  // -------------------------
-  // おにぎり未会計取得
-  // -------------------------
-  const onigiriRes = await fetch(
-    env.GAS_URL + "?mode=onigiriUnpaid"
-  );
-
-  const onigiriData = await onigiriRes.json();
-
-  const onigiri = Array.isArray(onigiriData)
-    ? onigiriData
-    : onigiriData.orders || onigiriData.data || [];
-
-
-  // -------------------------
-  // BBQ未会計取得
-  // -------------------------
-  const bbqRes = await fetch(
-    env.GAS_URL + "?mode=bbqUnpaid"
-  );
-
-  const bbqData = await bbqRes.json();
-
-  const bbq = Array.isArray(bbqData)
-    ? bbqData
-    : bbqData.orders || bbqData.data || [];
 
 
   const result = [];
 
 
-  // =========================
-  // おにぎり
-  // =========================
-  onigiri.forEach(item => {
+  try{
 
-    result.push({
+
+// =========================
+// おにぎり未会計
+// =========================
+const onigiri =
+  await env.DB
+  .prepare(`
+    SELECT *
+    FROM onigiri_orders
+    WHERE paid IS NULL
+       OR paid != '会計済'
+    ORDER BY order_no DESC, id ASC
+  `)
+  .all();
+
+
+const onigiriMap = {};
+
+
+onigiri.results.forEach(row=>{
+
+
+  if(!onigiriMap[row.order_no]){
+
+
+    onigiriMap[row.order_no] = {
 
       type:"onigiri",
 
-      no:item.orderNo,
+      no:
+        row.order_no,
 
-      customerName:item.customerName,
+      customerName:
+        row.customer_name || "",
 
-      items:item.items || [],
+      items:[],
 
-      itemTotal:Number(item.total || 0),
+      total:0
 
-      total:Number(item.total || 0)
+    };
 
-    });
-
-  });
+  }
 
 
-  // =========================
-  // BBQ
-  // =========================
-  bbq.forEach(item => {
 
-    result.push({
+  onigiriMap[row.order_no]
+  .items.push({
 
-      type:"bbq",
+    name:
+      row.item_name,
 
-      no:item.reservationNo,
+    qty:
+      Number(row.quantity || 0),
 
-      customerName:item.customerName,
-
-      plan:item.plan,
-
-      people:Number(item.people || 0),
-
-      unitPrice:Number(item.unitPrice || 0),
-
-      bbqPrice:Number(item.bbqPrice || 0),
-
-      optionItems:item.optionItems || [],
-
-      optionTotal:Number(item.optionTotal || 0),
-
-      total:Number(item.grandTotal || 0)
-
-    });
+    price:
+      Number(row.unit_price || 0)
 
   });
 
 
-  return json(result);
+
+  onigiriMap[row.order_no].total +=
+    Number(row.amount || 0);
+
+
+});
+
+
+
+Object.values(onigiriMap)
+.forEach(item=>{
+
+
+  item.itemTotal =
+    item.total;
+
+
+  result.push(item);
+
+
+});
+
+
+
+    // =========================
+// BBQ未会計
+// =========================
+const bbq =
+  await env.DB
+  .prepare(`
+    SELECT *
+    FROM bbq_reservations
+    WHERE paid IS NULL
+       OR paid != '会計済'
+    ORDER BY id DESC
+  `)
+  .all;
+
+
+
+// =========================
+// BBQ追加注文取得
+// =========================
+const bbqOptions =
+  await env.DB
+  .prepare(`
+    SELECT *
+    FROM bbq_option_orders
+    WHERE paid IS NULL
+       OR paid != '会計済'
+    ORDER BY id ASC
+  `)
+  .all();
+
+
+
+const optionMap = {};
+
+
+
+bbqOptions.results.forEach(row=>{
+
+
+  if(!optionMap[row.reservation_no]){
+
+    optionMap[row.reservation_no] = [];
+
+  }
+
+
+  optionMap[row.reservation_no].push({
+
+    name:
+      row.item_name,
+
+    qty:
+      Number(row.quantity || 0),
+
+    price:
+      Number(row.unit_price || 0)
+
+  });
+
+
+});
+
+
+
+bbq.results.forEach(row=>{
+
+
+  const options =
+    optionMap[row.reservation_no] || [];
+
+
+
+  let optionTotal = 0;
+
+
+  options.forEach(item=>{
+
+    optionTotal +=
+      item.qty * item.price;
+
+  });
+
+
+
+  result.push({
+
+
+    type:"bbq",
+
+
+    no:
+      row.reservation_no,
+
+
+    customerName:
+      row.customer_name || "",
+
+
+    plan:
+      row.plan || "",
+
+
+    people:
+      Number(row.people || 0),
+
+
+    unitPrice:
+      Number(row.unit_price || 0),
+
+
+    bbqPrice:
+      Number(row.amount || 0),
+
+
+    optionItems:
+      options,
+
+
+    optionTotal,
+
+
+    total:
+      Number(row.amount || 0)
+      +
+      optionTotal
+
+
+  });
+
+
+});
+
+
+
+   // =========================
+// キッチンカー未会計
+// =========================
+const kitchen =
+  await env.DB
+  .prepare(`
+    SELECT *
+    FROM kitchen_orders
+    WHERE payment IS NULL
+       OR payment != '会計済'
+    ORDER BY order_no DESC, id ASC
+  `)
+  .all();
+
+
+
+const kitchenMap = {};
+
+
+
+kitchen.results.forEach(row=>{
+
+
+  if(!kitchenMap[row.order_no]){
+
+
+    kitchenMap[row.order_no]={
+
+
+      type:"kitchen",
+
+
+      no:
+        row.order_no,
+
+
+      customerName:
+        row.vehicle_no || "",
+
+
+      items:[],
+
+
+      total:0
+
+
+    };
+
+
+  }
+
+
+
+  kitchenMap[row.order_no]
+  .items.push({
+
+
+    name:
+      row.item_name,
+
+
+    qty:
+      Number(row.quantity || 0),
+
+
+    price:
+      Number(row.unit_price || 0)
+
+
+  });
+
+
+
+  kitchenMap[row.order_no].total +=
+    Number(row.amount || 0);
+
+
+
+});
+
+
+
+Object.values(kitchenMap)
+.forEach(item=>{
+
+
+  item.itemTotal =
+    item.total;
+
+
+  result.push(item);
+
+
+});
+
+    // =========================
+    // 並び替え
+    // 新しい注文を上へ
+    // =========================
+    result.sort((a,b)=>{
+
+      if(a.no < b.no) return 1;
+      if(a.no > b.no) return -1;
+
+      return 0;
+
+    });
+
+
+    return json(result);
+
+
+  }catch(error){
+
+
+    console.error(
+      "handlePaymentWaiting D1 error",
+      error
+    );
+
+
+    return json({
+
+      success:false,
+
+      message:"D1 payment waiting failed",
+
+      error:error.message
+
+    },500);
+
+
+  }
 
 }
+
 // =========================
 // 管理者ログイン（KV方式）
 // =========================
