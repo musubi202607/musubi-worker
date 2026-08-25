@@ -5174,45 +5174,30 @@ function addKitchenOrder(data){
 
 }
 
+// =========================
+// キッチンカー未会計取得
+// =========================
 async function handleKitchenUnpaid(
   request,
   env
 ){
 
-  try{
-
-    const result =
-      await env.DB
-        .prepare(`
-          SELECT *
-          FROM kitchen_orders
-          ORDER BY id DESC
-        `)
-        .all();
-
-
-    return json(
-      result.results || []
-    );
+  const result =
+    await env.DB
+      .prepare(
+        `
+        SELECT *
+        FROM kitchen_orders
+        WHERE payment = '未'
+        ORDER BY id DESC
+        `
+      )
+      .all();
 
 
-  }catch(e){
-
-    console.error(
-      "handleKitchenUnpaid error",
-      e
-    );
-
-
-    return json(
-      {
-        success:false,
-        message:e.message
-      },
-      500
-    );
-
-  }
+  return json(
+    result.results || []
+  );
 
 }
 
