@@ -2998,10 +2998,8 @@ async function handleAdminLogin(request, env) {
   }
 
 
-
   const body =
     await request.json();
-
 
 
   const id =
@@ -3014,12 +3012,10 @@ async function handleAdminLogin(request, env) {
 
 
   // =========================
-  // KVからユーザー取得
+  // ユーザー取得
   // =========================
-
   const usersJson =
-    await env.ADMIN_USERS.get("users");
-
+    await env.MUSUBI_ADMIN_USERS_NEXT.get("users");
 
 
   if(!usersJson){
@@ -3070,7 +3066,7 @@ async function handleAdminLogin(request, env) {
 
       success:false,
 
-      message:"invalid login"
+      message:"login failed"
 
     });
 
@@ -3079,7 +3075,7 @@ async function handleAdminLogin(request, env) {
 
 
   // =========================
-  // 古い平文パスワード削除
+  // 平文パスワード削除
   // =========================
 
   if(user.password){
@@ -3087,7 +3083,7 @@ async function handleAdminLogin(request, env) {
     delete user.password;
 
 
-    await env.ADMIN_USERS.put(
+    await env.MUSUBI_ADMIN_USERS_NEXT.put(
 
       "users",
 
@@ -3112,7 +3108,7 @@ async function handleAdminLogin(request, env) {
   // セッション保存
   // =========================
 
-  await env.ADMIN_SESSION.put(
+  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
 
     token,
 
@@ -3124,8 +3120,7 @@ async function handleAdminLogin(request, env) {
 
       role:user.role,
 
-      loginTime:
-        Date.now()
+      loginTime:Date.now()
 
     }),
 
@@ -3148,7 +3143,7 @@ async function handleAdminLogin(request, env) {
 
     user:{
 
-      id:id,
+      id,
 
       name:user.name,
 
@@ -3641,7 +3636,7 @@ async function handleAdminDeleteUser(request, env){
 }
 
 // =========================
-// 管理者認証
+// 管理者認証 NEXT版
 // =========================
 async function requireAdmin(request, env){
 
@@ -3652,14 +3647,11 @@ async function requireAdmin(request, env){
     );
 
 
-
   if(
 
     !auth ||
 
-    !auth.startsWith(
-      "Bearer "
-    )
+    !auth.startsWith("Bearer ")
 
   ){
 
@@ -3682,10 +3674,9 @@ async function requireAdmin(request, env){
   // =========================
 
   const sessionJson =
-    await env.ADMIN_SESSION.get(
+    await env.MUSUBI_ADMIN_SESSION_NEXT.get(
       token
     );
-
 
 
   if(!sessionJson){
@@ -3697,9 +3688,7 @@ async function requireAdmin(request, env){
 
 
   const session =
-    JSON.parse(
-      sessionJson
-    );
+    JSON.parse(sessionJson);
 
 
 
@@ -3726,7 +3715,7 @@ async function requireAdmin(request, env){
 
   ){
 
-    await env.ADMIN_SESSION.delete(
+    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(
       token
     );
 
@@ -3742,10 +3731,9 @@ async function requireAdmin(request, env){
   // =========================
 
   const usersJson =
-    await env.ADMIN_USERS.get(
+    await env.MUSUBI_ADMIN_USERS_NEXT.get(
       "users"
     );
-
 
 
   const users =
@@ -3768,7 +3756,7 @@ async function requireAdmin(request, env){
 
   ){
 
-    await env.ADMIN_SESSION.delete(
+    await env.MUSUBI_ADMIN_SESSION_NEXT.delete(
       token
     );
 
@@ -3780,7 +3768,7 @@ async function requireAdmin(request, env){
 
 
   // =========================
-  // スライディングセッション更新
+  // スライディング更新
   // =========================
 
   session.loginTime =
@@ -3788,21 +3776,16 @@ async function requireAdmin(request, env){
 
 
 
-  await env.ADMIN_SESSION.put(
+  await env.MUSUBI_ADMIN_SESSION_NEXT.put(
 
     token,
 
-    JSON.stringify(
-      session
-    ),
+    JSON.stringify(session),
 
     {
 
       expirationTtl:
-        60 *
-        60 *
-        24 *
-        7
+        60 * 60 * 24 * 7
 
     }
 
