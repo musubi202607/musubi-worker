@@ -21,15 +21,36 @@ function getSessionId() {
 // =========================
 // 商品取得（キャッシュ付き）
 // =========================
-async function loadProductsCache() {
-  if (productCache.length) return productCache;
+async function loadProductsCache(){
 
-  const res = await fetch(API_URL + "/api/products");
-  productCache = await res.json();
+  if(productCache.length){
+
+    return productCache;
+
+  }
+
+  const res =
+    await fetch(
+      API_URL + "/api/products"
+    );
+
+  const result =
+    await res.json();
+
+  if(!result.success){
+
+    console.error(result);
+
+    return [];
+
+  }
+
+  productCache =
+    result.products || [];
 
   return productCache;
-}
 
+}
 // =========================
 // カート取得（キャッシュ付き）
 // =========================
