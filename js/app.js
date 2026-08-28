@@ -603,7 +603,7 @@ async function loadProducts(){
 
 <img
 
-src="${product.image}"
+src="${product.image || ''}"
 
 alt="${product.name}"
 
